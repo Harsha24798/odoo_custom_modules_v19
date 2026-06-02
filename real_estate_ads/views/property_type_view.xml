@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+
+        <!-- List View -->
+        <record id="view_property_type_list" model="ir.ui.view">
+            <field name="name">estate.property.type.list</field>
+            <field name="model">estate.property.type</field>
+            <field name="arch" type="xml">
+                <list string="Property Type">
+                    <field name="name"/>
+                </list>
+            </field>
+        </record>
+
+        <!-- Form View -->
+        <record id="view_property_type_form" model="ir.ui.view">
+            <field name="name">estate.property.type.form</field>
+            <field name="model">estate.property.type</field>
+            <field name="arch" type="xml">
+                <form string="Property Type">
+                    <sheet>
+                        <group>
+                            <field name="name"/>
+                        </group>
+                    </sheet>
+                </form>
+            </field>
+        </record>
+
+        <!-- Action View -->
+        <record id="action_property_type" model="ir.actions.act_window">
+            <field name="name">estate.property.type</field>
+            <field name="res_model">estate.property.type</field>
+            <field name="view_mode">list,form</field>
+            <field name="help" type="html">
+                <p class="o_view_nocontent_smiling_face">
+                    Create your first property Type
+                </p>
+            </field>
+        </record>
+
+    </data>
+</odoo>

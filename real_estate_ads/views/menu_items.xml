@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Parent Manu -->
+    <menuitem id="menu_root_property_ads" name="Property Ads" web_icon="real_estate_ads,static/description/icon.png"/>
+
+    <!-- Child Menu -->
+    <menuitem id="menu_property_ads" name="Ads" parent="menu_root_property_ads"/>
+    <menuitem id="menu_settings" name="Settings" parent="menu_root_property_ads"/>
+
+    <!-- Action Menu -->
+    <!-- Visible to sales and managers -->
+    <menuitem id="menu_property" name="Property" parent="menu_property_ads" action="action_property" groups="real_estate_ads.group_property_sales,real_estate_ads.group_property_manager,real_estate_ads.group_property_user"/>
+
+    <!-- Settings only for managers -->
+    <menuitem id="menu_property_type" name="Property Type" parent="menu_settings" action="action_property_type" groups="real_estate_ads.group_property_manager"/>
+    <menuitem id="menu_property_tag" name="Property Tag" parent="menu_settings" action="action_property_tags" groups="real_estate_ads.group_property_manager"/>
+    <menuitem id="menu_property_offer" name="Offers" parent="menu_settings" action="action_property_offers" groups="real_estate_ads.group_property_sales,real_estate_ads.group_property_manager"/>
+</odoo>

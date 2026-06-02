@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record id="property_tag_furnished" model="estate.property.tags">
+            <field name="name">Furnished</field>
+            <field name="color">1</field>
+        </record>
+
+        <record id="property_tag_sea_view" model="estate.property.tags">
+            <field name="name">Sea View</field>
+            <field name="color">2</field>
+        </record>
+
+        <record id="property_tag_garden" model="estate.property.tags">
+            <field name="name">Garden</field>
+            <field name="color">3</field>
+        </record>
+
+        <record id="property_tag_garage" model="estate.property.tags">
+            <field name="name">Garage</field>
+            <field name="color">4</field>
+        </record>
+    </data>
+</odoo>

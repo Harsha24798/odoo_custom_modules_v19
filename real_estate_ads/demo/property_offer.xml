@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="0">
+        <!-- Sample data partners for offers -->
+        <record id="partner_buyer_john" model="res.partner">
+            <field name="name">John Smith</field>
+            <field name="email">john.smith@example.com</field>
+            <field name="phone">+1-555-0101</field>
+        </record>
+
+        <record id="partner_buyer_jane" model="res.partner">
+            <field name="name">Jane Doe</field>
+            <field name="email">jane.doe@example.com</field>
+            <field name="phone">+1-555-0102</field>
+        </record>
+
+        <record id="partner_buyer_michael" model="res.partner">
+            <field name="name">Michael Johnson</field>
+            <field name="email">michael.j@example.com</field>
+            <field name="phone">+1-555-0103</field>
+        </record>
+
+        <record id="partner_buyer_sarah" model="res.partner">
+            <field name="name">Sarah Williams</field>
+            <field name="email">sarah.w@example.com</field>
+            <field name="phone">+1-555-0104</field>
+        </record>
+
+        <record id="partner_buyer_robert" model="res.partner">
+            <field name="name">Robert Brown</field>
+            <field name="email">robert.b@example.com</field>
+            <field name="phone">+1-555-0105</field>
+        </record>
+
+        <!-- Offers for Property 1 (Luxury Apartment - New) -->
+        <record id="property_offer_001_pending" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_john"/>
+            <field name="property_id" ref="property_apartment_modern"/>
+            <field name="price">350000.0</field>
+            <field name="status">pending</field>
+            <field name="validity">7</field>
+            <field name="creation_date">2026-05-17</field>
+        </record>
+
+        <record id="property_offer_001_accepted" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_jane"/>
+            <field name="property_id" ref="property_apartment_modern"/>
+            <field name="price">365000.0</field>
+            <field name="status">accepted</field>
+            <field name="validity">10</field>
+            <field name="creation_date">2026-05-18</field>
+        </record>
+
+        <record id="property_offer_001_refused" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_michael"/>
+            <field name="property_id" ref="property_apartment_modern"/>
+            <field name="price">340000.0</field>
+            <field name="status">refused</field>
+            <field name="validity">5</field>
+            <field name="creation_date">2026-05-16</field>
+        </record>
+
+        <!-- Offers for Property 2 (Modern House - Offer Received) -->
+        <record id="property_offer_002_pending_1" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_michael"/>
+            <field name="property_id" ref="property_house_seaside"/>
+            <field name="price">580000.0</field>
+            <field name="status">pending</field>
+            <field name="validity">14</field>
+            <field name="creation_date">2026-05-18</field>
+        </record>
+
+        <record id="property_offer_002_pending_2" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_sarah"/>
+            <field name="property_id" ref="property_house_seaside"/>
+            <field name="price">595000.0</field>
+            <field name="status">pending</field>
+            <field name="validity">7</field>
+            <field name="creation_date">2026-05-19</field>
+        </record>
+
+        <!-- Offers for Property 3 (Cozy Cottage - Offer Received) -->
+        <record id="property_offer_003_pending" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_robert"/>
+            <field name="property_id" ref="property_villa_garden"/>
+            <field name="price">245000.0</field>
+            <field name="status">pending</field>
+            <field name="validity">5</field>
+            <field name="creation_date">2026-05-19</field>
+        </record>
+
+        <record id="property_offer_003_refused" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_john"/>
+            <field name="property_id" ref="property_villa_garden"/>
+            <field name="price">240000.0</field>
+            <field name="status">refused</field>
+            <field name="validity">3</field>
+            <field name="creation_date">2026-05-17</field>
+        </record>
+
+        <!-- Offers for Property 4 (Spacious Villa - Offer Accepted) -->
+        <record id="property_offer_004_accepted" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_jane"/>
+            <field name="property_id" ref="property_land_investment"/>
+            <field name="price">750000.0</field>
+            <field name="status">accepted</field>
+            <field name="validity">21</field>
+            <field name="creation_date">2026-05-15</field>
+        </record>
+
+        <record id="property_offer_004_refused" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_michael"/>
+            <field name="property_id" ref="property_land_investment"/>
+            <field name="price">745000.0</field>
+            <field name="status">refused</field>
+            <field name="validity">7</field>
+            <field name="creation_date">2026-05-14</field>
+        </record>
+
+        <!-- Offers for Property 5 (Urban Loft - Offer Received) -->
+        <record id="property_offer_005_pending_1" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_sarah"/>
+            <field name="property_id" ref="property_studio_compact"/>
+            <field name="price">420000.0</field>
+            <field name="status">pending</field>
+            <field name="validity">10</field>
+            <field name="creation_date">2026-05-19</field>
+        </record>
+
+        <record id="property_offer_005_pending_2" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_robert"/>
+            <field name="property_id" ref="property_studio_compact"/>
+            <field name="price">435000.0</field>
+            <field name="status">pending</field>
+            <field name="validity">7</field>
+            <field name="creation_date">2026-05-19</field>
+        </record>
+
+        <!-- Offers for Property 6 (Beachfront Property - Offer Accepted) -->
+        <record id="property_offer_006_accepted" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_john"/>
+            <field name="property_id" ref="property_commercial_retail"/>
+            <field name="price">850000.0</field>
+            <field name="status">accepted</field>
+            <field name="validity">14</field>
+            <field name="creation_date">2026-05-18</field>
+        </record>
+
+        <record id="property_offer_006_refused" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_jane"/>
+            <field name="property_id" ref="property_commercial_retail"/>
+            <field name="price">840000.0</field>
+            <field name="status">refused</field>
+            <field name="validity">5</field>
+            <field name="creation_date">2026-05-16</field>
+        </record>
+
+        <record id="property_offer_006_refused_2" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_michael"/>
+            <field name="property_id" ref="property_commercial_retail"/>
+            <field name="price">855000.0</field>
+            <field name="status">refused</field>
+            <field name="validity">10</field>
+            <field name="creation_date">2026-05-17</field>
+        </record>
+
+        <!-- Offers for Property 7 (Commercial Space - Offer Received) -->
+        <record id="property_offer_007_pending" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_sarah"/>
+            <field name="property_id" ref="property_townhouse_luxury"/>
+            <field name="price">320000.0</field>
+            <field name="status">pending</field>
+            <field name="validity">14</field>
+            <field name="creation_date">2026-05-19</field>
+        </record>
+
+        <!-- Offers for Property 8 (Historic Villa - Offer Received) -->
+        <record id="property_offer_008_pending_1" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_robert"/>
+            <field name="property_id" ref="property_penthouse"/>
+            <field name="price">520000.0</field>
+            <field name="status">pending</field>
+            <field name="validity">21</field>
+            <field name="creation_date">2026-05-18</field>
+        </record>
+
+        <record id="property_offer_008_pending_2" model="estate.property.offers">
+            <field name="partner_id" ref="partner_buyer_john"/>
+            <field name="property_id" ref="property_penthouse"/>
+            <field name="price">530000.0</field>
+            <field name="status">pending</field>
+            <field name="validity">7</field>
+            <field name="creation_date">2026-05-19</field>
+        </record>
+
+    </data>
+</odoo>
+

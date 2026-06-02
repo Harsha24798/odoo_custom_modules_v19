@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+  <data noupdate="0">
+    <!-- Module category for Real Estate Ads security groups -->
+    <record id="module_category_real_estate_ads_cat" model="ir.module.category">
+      <field name="name">Real Estate Ads</field>
+    </record>
+
+    <!-- Privilege grouping for Real Estate Ads (used to group related roles) -->
+    <record id="res_groups_privilege_real_estate_ads" model="res.groups.privilege">
+      <field name="name">Real Estate Ads</field>
+      <field name="sequence">20</field>
+      <field name="category_id" ref="module_category_real_estate_ads_cat"/>
+    </record>
+
+    <!-- Groups for role-based access control with implied hierarchy -->
+    <!-- group_property_user: Base role for all property users -->
+    <record id="group_property_user" model="res.groups">
+      <field name="name">Property User</field>
+      <field name="sequence">10</field>
+      <field name="privilege_id" ref="res_groups_privilege_real_estate_ads"/>
+      <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/>
+      <field name="comment">Read-only access to view properties and create/edit own offers.</field>
+    </record>
+
+    <!-- group_property_sales: Implies group_property_user (can accept/refuse offers, mark sold) -->
+    <record id="group_property_sales" model="res.groups">
+      <field name="name">Property Sales</field>
+      <field name="sequence">20</field>
+      <field name="privilege_id" ref="res_groups_privilege_real_estate_ads"/>
+      <field name="implied_ids" eval="[(4, ref('real_estate_ads.group_property_user'))]"/>
+      <field name="comment">Sales users can accept/refuse offers, manage all offers, and mark properties as sold/canceled.</field>
+    </record>
+
+    <!-- group_property_manager: Implies group_property_sales (full access to manage properties and configuration) -->
+    <record id="group_property_manager" model="res.groups">
+      <field name="name">Property Manager</field>
+      <field name="sequence">30</field>
+      <field name="privilege_id" ref="res_groups_privilege_real_estate_ads"/>
+      <field name="implied_ids" eval="[(4, ref('real_estate_ads.group_property_sales'))]"/>
+      <field name="comment">Full access to manage properties, types, tags, offers and all configurations.</field>
+    </record>
+
+  </data>
+</odoo>

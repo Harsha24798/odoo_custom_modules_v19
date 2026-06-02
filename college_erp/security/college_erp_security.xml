@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!-- Create College ERP Category -->
+    <record id="module_category_college_erp_cat" model="ir.module.category">
+        <field name="name">College ERP</field>
+    </record>
+
+    <!-- Privilege Grouping -->
+    <record id="res_groups_privilege_college_erp" model="res.groups.privilege">
+        <field name="name">College ERP</field>
+        <field name="category_id" ref="module_category_college_erp_cat"/>
+    </record>
+
+    <!-- Teacher Group: Can read and edit student records -->
+    <record id="group_college_erp_teacher" model="res.groups">
+        <field name="name">College ERP Teacher</field>
+        <field name="privilege_id" ref="res_groups_privilege_college_erp"/>
+        <field name="implied_ids" eval="[(4, ref('base.group_user'))]"/> <!-- Implies basic user access -->
+    </record>
+
+    <!-- Staff Group: Same permissions as Teacher (can add more staff later) -->
+    <record id="group_college_erp_staff" model="res.groups">
+        <field name="name">College ERP Staff</field>
+        <field name="privilege_id" ref="res_groups_privilege_college_erp"/>
+        <field name="implied_ids" eval="[(4, ref('group_college_erp_teacher'))]"/> <!-- Implies Teacher permissions -->
+    </record>
+
+    <!-- Principal Group: Full access (implies Teacher and Staff) -->
+    <record id="group_college_erp_principal" model="res.groups">
+        <field name="name">College ERP Principal</field>
+        <field name="implied_ids" eval="[(4, ref('group_college_erp_teacher')), (4, ref('group_college_erp_staff'))]"/>
+        <field name="privilege_id" ref="res_groups_privilege_college_erp"/>
+    </record>
+
+</odoo>

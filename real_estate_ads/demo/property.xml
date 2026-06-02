@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <!-- Sample Property 1: Modern Apartment (New) -->
+        <record id="property_apartment_modern" model="estate.property">
+            <field name="name">Modern Apartment in Downtown</field>
+            <field name="type_id" ref="real_estate_ads.property_type_apartment"/>
+            <field name="postcode">10001</field>
+            <field name="date_availability">2026-06-01</field>
+            <field name="description">Stunning modern apartment with panoramic city views, fully renovated kitchen, and marble bathrooms.</field>
+            <field name="expected_price">350000</field>
+            <field name="bedrooms">2</field>
+            <field name="living_area">95</field>
+            <field name="facades">1</field>
+            <field name="garage">True</field>
+            <field name="garden">False</field>
+            <field name="garden_area">0</field>
+            <field name="garden_orientation">north</field>
+            <field name="state">new</field>
+            <field name="tag_ids" eval="[(6, 0, [ref('real_estate_ads.property_tag_furnished')])]"/>
+        </record>
+
+        <!-- Sample Property 2: Seaside House (Offer Received) -->
+        <record id="property_house_seaside" model="estate.property">
+            <field name="name">Beautiful Beachfront House</field>
+            <field name="type_id" ref="real_estate_ads.property_type_house"/>
+            <field name="postcode">90001</field>
+            <field name="date_availability">2026-05-20</field>
+            <field name="description">Luxury beachfront property with direct beach access, infinity pool, and terrace overlooking the ocean.</field>
+            <field name="expected_price">850000</field>
+            <field name="bedrooms">4</field>
+            <field name="living_area">250</field>
+            <field name="facades">3</field>
+            <field name="garage">True</field>
+            <field name="garden">True</field>
+            <field name="garden_area">150</field>
+            <field name="garden_orientation">south</field>
+            <field name="state">received</field>
+            <field name="tag_ids" eval="[(6, 0, [ref('real_estate_ads.property_tag_sea_view'), ref('real_estate_ads.property_tag_garden')])]"/>
+        </record>
+
+        <!-- Sample Property 3: Garden Villa (Offer Accepted) -->
+        <record id="property_villa_garden" model="estate.property">
+            <field name="name">Elegant Garden Villa</field>
+            <field name="type_id" ref="real_estate_ads.property_type_house"/>
+            <field name="postcode">80001</field>
+            <field name="date_availability">2026-04-15</field>
+            <field name="description">Spacious villa with manicured gardens, estate wine cellar, and premium finishes throughout.</field>
+            <field name="expected_price">650000</field>
+            <field name="bedrooms">5</field>
+            <field name="living_area">320</field>
+            <field name="facades">4</field>
+            <field name="garage">True</field>
+            <field name="garden">True</field>
+            <field name="garden_area">500</field>
+            <field name="garden_orientation">west</field>
+            <field name="state">accepted</field>
+            <field name="tag_ids" eval="[(6, 0, [ref('real_estate_ads.property_tag_furnished'), ref('real_estate_ads.property_tag_garden'), ref('real_estate_ads.property_tag_garage')])]"/>
+        </record>
+
+        <!-- Sample Property 4: Investment Land (Sold) -->
+        <record id="property_land_investment" model="estate.property">
+            <field name="name">Prime Commercial Land</field>
+            <field name="type_id" ref="real_estate_ads.property_type_land"/>
+            <field name="postcode">75001</field>
+            <field name="date_availability">2026-03-01</field>
+            <field name="description">Prime commercial land in downtown development zone, perfect for mixed-use development.</field>
+            <field name="expected_price">1200000</field>
+            <field name="bedrooms">0</field>
+            <field name="living_area">0</field>
+            <field name="facades">2</field>
+            <field name="garage">False</field>
+            <field name="garden">False</field>
+            <field name="garden_area">0</field>
+            <field name="garden_orientation">north</field>
+            <field name="state">sold</field>
+            <field name="tag_ids" eval="[(6, 0, [])]"/>
+        </record>
+
+        <!-- Sample Property 5: Compact Studio (Canceled) -->
+        <record id="property_studio_compact" model="estate.property">
+            <field name="name">Cozy Studio Apartment</field>
+            <field name="type_id" ref="real_estate_ads.property_type_apartment"/>
+            <field name="postcode">10002</field>
+            <field name="date_availability">2026-05-15</field>
+            <field name="description">Compact and efficient studio perfect for young professionals or investors.</field>
+            <field name="expected_price">180000</field>
+            <field name="bedrooms">0</field>
+            <field name="living_area">45</field>
+            <field name="facades">1</field>
+            <field name="garage">False</field>
+            <field name="garden">False</field>
+            <field name="garden_area">0</field>
+            <field name="garden_orientation">east</field>
+            <field name="state">cancel</field>
+            <field name="tag_ids" eval="[(6, 0, [ref('real_estate_ads.property_tag_furnished')])]"/>
+        </record>
+
+        <!-- Sample Property 6: Commercial Space (New) -->
+        <record id="property_commercial_retail" model="estate.property">
+            <field name="name">Retail Space in Shopping Mall</field>
+            <field name="type_id" ref="real_estate_ads.property_type_commercial"/>
+            <field name="postcode">70001</field>
+            <field name="date_availability">2026-07-01</field>
+            <field name="description">Prime retail space in busy shopping mall with high foot traffic and excellent visibility.</field>
+            <field name="expected_price">450000</field>
+            <field name="bedrooms">0</field>
+            <field name="living_area">200</field>
+            <field name="facades">2</field>
+            <field name="garage">True</field>
+            <field name="garden">False</field>
+            <field name="garden_area">0</field>
+            <field name="garden_orientation">south</field>
+            <field name="state">new</field>
+            <field name="tag_ids" eval="[(6, 0, [])]"/>
+        </record>
+
+        <!-- Sample Property 7: Luxury Garden Townhouse (Offer Received) -->
+        <record id="property_townhouse_luxury" model="estate.property">
+            <field name="name">Luxury Garden Townhouse</field>
+            <field name="type_id" ref="real_estate_ads.property_type_house"/>
+            <field name="postcode">85001</field>
+            <field name="date_availability">2026-05-01</field>
+            <field name="description">3-story luxury townhouse with private courtyard garden, modern architecture, and smart home features.</field>
+            <field name="expected_price">520000</field>
+            <field name="bedrooms">3</field>
+            <field name="living_area">180</field>
+            <field name="facades">2</field>
+            <field name="garage">True</field>
+            <field name="garden">True</field>
+            <field name="garden_area">80</field>
+            <field name="garden_orientation">east</field>
+            <field name="state">received</field>
+            <field name="tag_ids" eval="[(6, 0, [ref('real_estate_ads.property_tag_furnished'), ref('real_estate_ads.property_tag_garage')])]"/>
+        </record>
+
+        <!-- Sample Property 8: Penthouse with Terrace (Accepted) -->
+        <record id="property_penthouse" model="estate.property">
+            <field name="name">Penthouse with Private Terrace</field>
+            <field name="type_id" ref="real_estate_ads.property_type_apartment"/>
+            <field name="postcode">11001</field>
+            <field name="date_availability">2026-04-01</field>
+            <field name="description">Exclusive penthouse on top floor with large private terrace, concierge service, and building amenities.</field>
+            <field name="expected_price">950000</field>
+            <field name="bedrooms">3</field>
+            <field name="living_area">220</field>
+            <field name="facades">2</field>
+            <field name="garage">True</field>
+            <field name="garden">False</field>
+            <field name="garden_area">40</field>
+            <field name="garden_orientation">north</field>
+            <field name="state">accepted</field>
+            <field name="tag_ids" eval="[(6, 0, [ref('real_estate_ads.property_tag_furnished')])]"/>
+        </record>
+
+    </data>
+</odoo>
+

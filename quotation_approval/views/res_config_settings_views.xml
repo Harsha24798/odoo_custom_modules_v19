@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- XML Declaration: Required at top of file -->
+
+<odoo>
+    <!-- All Odoo XML views inside <odoo> tags -->
+
+    <record id="res_config_settings_view_form_quotation_approval"
+            model="ir.ui.view">
+        <!-- Record: A database record
+             model="ir.ui.view": This record is a view definition
+             id: Unique identifier other modules can reference -->
+
+        <field name="name">res.config.settings.quotation.approval</field>
+        <!-- Technical name used internally -->
+
+        <field name="model">res.config.settings</field>
+        <!-- This view displays res.config.settings model (our settings) -->
+
+        <field name="priority" eval="20"/>
+        <!-- Priority: If multiple views exist, higher number loads first -->
+
+        <field name="inherit_id" ref="sale.res_config_settings_view_form"/>
+        <!--
+        KEY CONCEPT: inherit_id
+        - "Inherit" the existing Sales settings form
+        - Not create new form, but MODIFY the existing one
+        - We ADD A NEW INDEPENDENT BLOCK to the form
+        - Result: Completely NEW "Approval" section/tab in settings
+        - NOT inside existing "Quotations & Orders" - it's separate!
+        -->
+
+        <field name="arch" type="xml">
+            <!-- arch: The form structure (XML markup) -->
+
+            <!-- Find the form element and add our new INDEPENDENT BLOCK -->
+            <xpath expr="//app[@name='sale_management']" position="inside">
+                <!--
+                XPath: Query to find elements
+                - Find: <form> element (the main form container)
+                - Position: inside = add content INSIDE the form
+                - Result: Creates NEW INDEPENDENT BLOCK/SECTION/TAB
+
+                This creates a completely NEW settings category called "Approval"
+                Not inside existing "Quotations & Orders" - it's separate!
+                -->
+
+                <!-- NEW INDEPENDENT SETTINGS BLOCK WITH VISIBLE HEADING -->
+                <block title="Approval" name="quotation_approval_block">
+                    <!-- title: The HEADING shown for this settings block
+                         name: Unique identifier for this block
+                         Result: Creates new "Approval" section with VISIBLE heading -->
+
+                    <!-- Setting 1: Enable/Disable Approval checkbox -->
+                    <setting id="quotation_approval_enabled"
+                             help="Enable approval process for quotations. When enabled, quotations above the threshold amount will require approval before they can be confirmed.">
+                        <!-- id: Unique identifier for this setting
+                             help: Description/tooltip shown below -->
+
+                        <field name="quotation_approval_enabled"/>
+                        <!-- This displays the checkbox field -->
+                    </setting>
+
+                    <!-- Setting 2: Approval Threshold Amount -->
+                    <setting id="quotation_approval_threshold"
+                             help="Set the minimum amount above which quotations require approval. Enter 0 to require approval for all quotations.">
+                        <field name="quotation_approval_threshold"/>
+                        <!-- This displays the amount/number field -->
+                    </setting>
+
+                </block>
+                <!-- End of NEW "Approval" settings block (WITH VISIBLE HEADING) -->
+
+            </xpath>
+
+        </field>
+
+    </record>
+
+</odoo>

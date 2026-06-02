@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <template id="report_estate_property_document">
+            <t t-call="web.external_layout">
+                <div class="page">
+                    <h2>Property Report</h2>
+                    <p><strong>Name:</strong> <span t-field="doc.name"/></p>
+                    <p><strong>Expected Price:</strong> <span t-field="doc.expected_price"/></p>
+                    <p><strong>Selling Price:</strong> <span t-field="doc.selling_price"/></p>
+                    <p><strong>Type:</strong> <span t-field="doc.type_id.name"/></p>
+                    <p><strong>Description:</strong> <span t-field="doc.description"/></p>
+                    <p><strong>Bedrooms:</strong> <span t-field="doc.bedrooms"/></p>
+                    <p><strong>Living Area:</strong> <span t-field="doc.living_area"/> sqm</p>
+                    <p><strong>Garden Area:</strong> <span t-field="doc.garden_area"/> sqm</p>
+                    <p><strong>Total Area:</strong> <span t-field="doc.total_area"/> sqm</p>
+                    <p><strong>Garage:</strong> <span t-field="doc.garage"/></p>
+                    <p><strong>Garden:</strong> <span t-field="doc.garden"/></p>
+                    <p><strong>Status:</strong> <span t-field="doc.state"/></p>
+                </div>
+            </t>
+        </template>
+
+        <template id="report_estate_property">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="doc">
+                    <t t-call="real_estate_ads.report_estate_property_document"/>
+                </t>
+            </t>
+        </template>
+
+    </data>
+</odoo>

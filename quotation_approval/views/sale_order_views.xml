@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- XML Declaration -->
+
+<odoo>
+    <!-- All views go inside <odoo> tags -->
+
+    <record id="sale_order_form_quotation_approval"
+            model="ir.ui.view">
+        <!--
+        We're creating a VIEW RECORD that INHERITS existing quotation form
+        id: Unique identifier
+        model: This is ir.ui.view (a view definition)
+        -->
+
+        <field name="name">sale.order.form.quotation.approval</field>
+        <!-- Technical name -->
+
+        <field name="model">sale.order</field>
+        <!-- This view displays sale.order (quotations/orders) -->
+
+        <field name="inherit_id" ref="sale.view_order_form"/>
+        <!--
+        KEY: inherit_id
+        - Load the EXISTING quotation form
+        - Modify it by adding our approval UI
+        - Don't create NEW form, modify the existing one
+        -->
+
+        <field name="arch" type="xml">
+            <!-- The form structure (XML markup) -->
+
+            <!--
+            ╔═════════════════════════════════════════════════╗
+            ║ PART 1: Add Approval Buttons                   ║
+            ╚═════════════════════════════════════════════════╝
+            -->
+
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <!--
+                Find: <div> with name='button_box'
+                 (This exists in the quotation form)
+
+                Position: "inside" = add our buttons inside this div
+
+                Result: Buttons appear at the top right of the form
+                -->
+
+                <!-- BUTTON 1: Mark as Approved -->
+                <button name="action_set_approval_status"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-check-circle"
+                        groups="sales_team.group_sale_manager"
+                        invisible="state not in ['draft', 'sent'] or not is_approval_required">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Mark as Approved</span>
+                    </div>
+                </button>
+                <!-- End Button 1 -->
+
+                <!-- BUTTON 2: Reject -->
+                <button name="action_reject_approval"
+                        type="object"
+                        class="oe_stat_button"
+                        icon="fa-times-circle"
+
+                        groups="sales_team.group_sale_manager"
+                        invisible="state not in ['draft', 'sent'] or not is_approval_required">
+                    <div class="o_stat_info">
+                        <span class="o_stat_text">Reject</span>
+                    </div>
+                </button>
+                <!-- End Button 2 -->
+
+            </xpath>
+            <!-- End of button_box modifications -->
+
+            <!--
+            ╔═════════════════════════════════════════════════╗
+            ║ PART 2: Add Status Alerts                      ║
+            ╚═════════════════════════════════════════════════╝
+            -->
+
+            <xpath expr="//sheet" position="before">
+                <!--
+                Find: <sheet> element (main form content area)
+                Position: "before" = insert BEFORE sheet
+
+                Result: Alerts appear before the main form content
+                -->
+
+                <!-- Store field values (hidden) -->
+                <field name="is_approval_required" invisible="1"/>
+                <!-- Used for computing and invisible conditions -->
+
+                <field name="approval_status" invisible="1"/>
+                <!-- Used for status checking -->
+
+                <!-- ALERT 1: Approval Required (pending) -->
+                <div class="alert alert-warning" role="alert"
+                     invisible="not is_approval_required or approval_status == 'approved'">
+                    <!-- ↑ Show this alert ONLY IF:
+                         - Approval required (is_approval_required = TRUE)
+                         - AND not already approved (approval_status != 'approved')
+                         -->
+
+                    <strong>⚠️ Approval Required!</strong>
+                    <span> This quotation requires approval before it can be confirmed.</span>
+                </div>
+
+                <!-- ALERT 2: Approved (green) -->
+                <div class="alert alert-success" role="alert"
+                     invisible="approval_status != 'approved'">
+                    <!-- ↑ Show ONLY IF: approval_status == 'approved' -->
+
+                    <strong>✓ Approved!</strong>
+                    <span> This quotation has been approved and can be confirmed.</span>
+                </div>
+
+                <!-- ALERT 3: Rejected (red) -->
+                <div class="alert alert-danger" role="alert"
+                     invisible="approval_status != 'rejected'">
+                    <!-- ↑ Show ONLY IF: approval_status == 'rejected' -->
+
+                    <strong>✗ Rejected!</strong>
+                    <span> This quotation has been rejected. Please resubmit for approval.</span>
+                </div>
+
+            </xpath>
+            <!-- End of sheet modifications -->
+
+            <!--
+            ╔═════════════════════════════════════════════════╗
+            ║ PART 3: Modify Confirm Button                  ║
+            ╚═════════════════════════════════════════════════╝
+            -->
+
+<!--            <xpath expr="//button[@name='action_confirm']" position="attributes">-->
+                <!--
+                Find: Button with name="action_confirm"
+                Position: "attributes" = modify the button's attributes
+                Hide the Confirm button IF:
+                - State is not draft or sent (already confirmed), OR
+                - Approval IS required BUT not approved yet
+                -->
+
+<!--                <attribute name="invisible">state not in ['draft', 'sent'] or (is_approval_required and approval_status != 'approved')</attribute>-->
+
+<!--            </xpath>-->
+            <!-- End of confirm button modifications -->
+
+        </field>
+        <!-- End of arch -->
+
+    </record>
+    <!-- End of record -->
+
+</odoo>
+<!-- End of file -->
+
+<!--
+╔═════════════════════════════════════════════════════════════╗
+║ WHAT THIS DOES:                                             ║
+║ ═════════════════════════════════════════════════════════════║
+║                                                             ║
+║ When user opens a quotation:                               ║
+║                                                             ║
+║ 1. Python code runs:                                        ║
+║    - _compute_approval_required() decides if approval       ║
+║      is needed based on amount and settings                ║
+║                                                             ║
+║ 2. This XML shows/hides UI elements based on result:       ║
+║                                                             ║
+║    If approval NOT needed:                                  ║
+║    ├─ No alert shown                                        ║
+║    ├─ No approval buttons shown                             ║
+║    └─ Confirm button is VISIBLE and clickable               ║
+║                                                             ║
+║    If approval needed but NOT done:                         ║
+║    ├─ Yellow alert: "Approval Required"                     ║
+║    ├─ Approval buttons visible                              ║
+║    └─ Confirm button is HIDDEN (grayed out)                 ║
+║                                                             ║
+║    If approval done:                                        ║
+║    ├─ Green alert: "Approved!"                              ║
+║    ├─ Approval buttons hidden                               ║
+║    └─ Confirm button is VISIBLE and clickable               ║
+║                                                             ║
+║    If approval rejected:                                    ║
+║    ├─ Red alert: "Rejected!"                                ║
+║    ├─ Approval buttons visible                              ║
+║    └─ Confirm button is HIDDEN                              ║
+║                                                             ║
+╚═════════════════════════════════════════════════════════════╝
+-->

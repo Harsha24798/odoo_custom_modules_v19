@@ -1,0 +1,15 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_estate_property_user,Property User Access,real_estate_ads.model_estate_property,real_estate_ads.group_property_user,1,1,1,1
+access_estate_property_sales,Property Sales Access,real_estate_ads.model_estate_property,real_estate_ads.group_property_sales,1,1,1,0
+access_estate_property_manager,Property Manager Access,real_estate_ads.model_estate_property,real_estate_ads.group_property_manager,1,1,1,1
+
+access_estate_property_type_user,Property Type User Access,real_estate_ads.model_estate_property_type,real_estate_ads.group_property_user,1,0,0,0
+access_estate_property_type_manager,Property Type Manager Access,real_estate_ads.model_estate_property_type,real_estate_ads.group_property_manager,1,1,1,1
+
+access_estate_property_tags_user,Property Tags User Access,real_estate_ads.model_estate_property_tags,real_estate_ads.group_property_user,1,0,0,0
+access_estate_property_tags_manager,Property Tags Manager Access,real_estate_ads.model_estate_property_tags,real_estate_ads.group_property_manager,1,1,1,1
+
+access_estate_property_offers_user,Property Offers User Access,real_estate_ads.model_estate_property_offers,real_estate_ads.group_property_user,1,1,1,1
+access_estate_property_offers_sales,Property Offers Sales Access,real_estate_ads.model_estate_property_offers,real_estate_ads.group_property_sales,1,1,1,0
+access_estate_property_offers_manager,Property Offers Manager Access,real_estate_ads.model_estate_property_offers,real_estate_ads.group_property_manager,1,1,1,1
