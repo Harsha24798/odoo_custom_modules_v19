@@ -1,2 +1,5 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
-access_college_student,access.college.student,college_erp.model_college_student,group_college_erp_teacher,1,1,1,1
+access_college_student,access.college.student,college_erp.model_college_student,base.group_user,1,0,0,0
+access_college_teacher,access.college.teacher,college_erp.model_college_student,group_college_erp_teacher,1,1,1,0
+access_college_staff,access.college.staff,college_erp.model_college_student,group_college_erp_staff,1,1,1,0
+access_college_principal,access.college.principal,college_erp.model_college_student,group_college_erp_principal,1,1,1,1

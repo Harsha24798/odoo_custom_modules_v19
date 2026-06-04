@@ -19,7 +19,7 @@
     'license': 'LGPL-3',
     'sequence': 1,
 
-    'depends': ['base'],
+    'depends': ['base', 'mail'],
     'data': [
         # Security Files
         'security/real_estate_ads_groups.xml',

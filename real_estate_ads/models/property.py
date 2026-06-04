@@ -7,13 +7,14 @@ _logger = logging.getLogger(__name__)
 
 class Property(models.Model):
     _name = 'estate.property'
+    _inherit = ['mail.thread']
     _description = 'Real Estate Property'
 
     name = fields.Char(string='Name', required=True)
     description = fields.Text(string='Description')
     postcode = fields.Char(string='Postcode')
     date_availability = fields.Date(string='Available From')
-    expected_price = fields.Monetary(string='Expected Price', currency_field='currency_id')
+    expected_price = fields.Monetary(string='Expected Price', currency_field='currency_id', tracking=True)
     bedrooms = fields.Integer(string='Bedrooms')
     living_area = fields.Integer(string='Living Area(sqm)')
     facades = fields.Integer(string='Facades')

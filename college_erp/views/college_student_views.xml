@@ -79,5 +79,5 @@
     </record>
 
     <!-- Action Menu -->
-    <menuitem id="college_erp_menu_student" name="Student" parent="college_erp_menu_dashboard" action="action_college_erp" sequence="1"/>
+<!--    <menuitem id="college_erp_menu_student" name="Student" parent="college_erp.college_erp_menu_dashboard" action="action_college_erp" sequence="1"/>-->
 </odoo>

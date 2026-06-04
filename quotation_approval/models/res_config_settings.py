@@ -63,8 +63,7 @@ class ResConfigSettings(models.TransientModel):
         # ↑ WHERE it's stored in database
 
         default=0.0
-        # ↑ Default threshold: 10,000
-        # ↑ Means: amounts > 10,000 need approval
+        # ↑ Default threshold: 0.0 (means all quotations need approval)
     )
 
 # ═══════════════════════════════════════════════════════════════

@@ -148,6 +148,9 @@
                         </notebook>
 
                     </sheet>
+<!--                    <div class="oe_chatter">-->
+<!--                        <chatter groups="real_estate_ads.group_property_manager"/>-->
+<!--                    </div>-->
                 </form>
             </field>
         </record>

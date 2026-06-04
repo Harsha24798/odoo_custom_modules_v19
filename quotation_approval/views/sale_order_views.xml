@@ -4,8 +4,7 @@
 <odoo>
     <!-- All views go inside <odoo> tags -->
 
-    <record id="sale_order_form_quotation_approval"
-            model="ir.ui.view">
+    <record id="sale_order_form_quotation_approval" model="ir.ui.view">
         <!--
         We're creating a VIEW RECORD that INHERITS existing quotation form
         id: Unique identifier

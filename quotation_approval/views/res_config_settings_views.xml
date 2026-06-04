@@ -4,8 +4,7 @@
 <odoo>
     <!-- All Odoo XML views inside <odoo> tags -->
 
-    <record id="res_config_settings_view_form_quotation_approval"
-            model="ir.ui.view">
+    <record id="res_config_settings_view_form_quotation_approval" model="ir.ui.view">
         <!-- Record: A database record
              model="ir.ui.view": This record is a view definition
              id: Unique identifier other modules can reference -->
