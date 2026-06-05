@@ -103,9 +103,9 @@ class PropertyOffers(models.Model):
                 record.property_id.state = 'received'
         return records
 
-    def _compute_deadline(self):
-        """(DEPRECATED) Kept for backward compatibility. Deadline is now a regular field."""
-        pass
+    # def _compute_deadline(self):
+    #     """(DEPRECATED) Kept for backward compatibility. Deadline is now a regular field."""
+    #     pass
 
     @api.depends('deadline', 'creation_date')
     def _compute_validity(self):
@@ -151,9 +151,9 @@ class PropertyOffers(models.Model):
                 days = max(record.validity or 1, 1)
                 record.deadline = record.creation_date + timedelta(days=days)
 
-    def _inverse_deadline(self):
-        """(DEPRECATED) No longer needed. Deadline is now a regular field."""
-        pass
+    # def _inverse_deadline(self):
+    #     """(DEPRECATED) No longer needed. Deadline is now a regular field."""
+    #     pass
 
     @api.constrains('price')
     def _check_price_positive(self):

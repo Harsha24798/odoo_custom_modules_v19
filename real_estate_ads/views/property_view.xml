@@ -246,5 +246,9 @@
             </field>
         </record>
 
+        <!-- Action Menu -->
+        <!-- Visible to Users, sales and managers -->
+        <menuitem id="menu_property" name="Property" parent="menu_property_ads" action="action_property" groups="real_estate_ads.group_property_sales,real_estate_ads.group_property_manager,real_estate_ads.group_property_user"/>
+
     </data>
 </odoo>

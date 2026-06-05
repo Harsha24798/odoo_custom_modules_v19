@@ -40,5 +40,9 @@
             </field>
         </record>
 
+        <!-- Action Menu -->
+        <!-- Settings only for managers -->
+        <menuitem id="menu_property_type" name="Property Type" parent="menu_settings" action="action_property_type" groups="real_estate_ads.group_property_manager"/>
+
     </data>
 </odoo>

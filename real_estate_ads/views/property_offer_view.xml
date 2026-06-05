@@ -56,5 +56,9 @@
             </field>
         </record>
 
+        <!-- Action Menu -->
+        <!-- Settings only for sales and managers -->
+        <menuitem id="menu_property_offer" name="Offers" parent="menu_settings" action="action_property_offers" groups="real_estate_ads.group_property_sales,real_estate_ads.group_property_manager"/>
+
     </data>
 </odoo>

@@ -42,5 +42,9 @@
             </field>
         </record>
 
+        <!-- Action Menu -->
+        <!-- Settings only for managers -->
+        <menuitem id="menu_property_tag" name="Property Tag" parent="menu_settings" action="action_property_tags" groups="real_estate_ads.group_property_manager"/>
+
     </data>
 </odoo>
