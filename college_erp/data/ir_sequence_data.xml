@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <record id="college_student_admission_no_sequence" model="ir.sequence">
+        <field name="name">College Student Admission Number</field>
+        <field name="code">college.student.admission.no</field>
+        <field name="prefix">STD</field>
+        <field name="padding">4</field>
+        <field name="number_increment">1</field>
+        <field name="use_date_range">False</field>
+    </record>
+</odoo>

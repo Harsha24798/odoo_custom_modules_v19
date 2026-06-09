@@ -21,6 +21,8 @@
         'security/college_erp_security.xml',
         'security/ir.model.access.csv',
 
+        'data/ir_sequence_data.xml',
+
         'views/college_student_views.xml',
         'views/college_erp_menus_views.xml',
     ],

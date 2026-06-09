@@ -36,6 +36,7 @@
         # Data Files
         'data/property_type.xml',
         'data/ir_cron.xml',
+        'data/mail.template.xml',
 
         # Report
         'report/report_estate_property.xml',

@@ -49,6 +49,7 @@
                     <field name="selling_price" widget="monetary"/>
                     <field name="bedrooms" optional="show"/>
                     <field name="living_area" optional="show"/>
+                    <field name="currency_id" invisible="1"/>
                     <field name="facades" optional="hide"/>
                     <field name="garage" optional="hide"/>
                     <field name="garden" optional="hide"/>
@@ -69,6 +70,10 @@
                         <!-- Mark as Sold / Cancel buttons: visible for Sales/Manager groups only -->
                         <button name="action_sold" string="Mark as Sold" type="object" class="btn-primary" groups="real_estate_ads.group_property_sales"/>
                         <button name="action_cancel" string="Cancel" type="object" class="btn-danger" groups="real_estate_ads.group_property_sales"/>
+
+                        <!-- Send Email -->
+                        <button name="action_send_email" string="Send Email" type="object" class="btn-secondary" groups="real_estate_ads.group_property_sales"/>
+
                         <field name="state" widget="statusbar"/>
                     </header>
                     <sheet>
@@ -98,6 +103,7 @@
                                 <field name="expected_price" widget="monetary" readonly="not is_manager"/>
                                 <field name="best_offer" widget="monetary" readonly="1"/>
                                 <field name="selling_price" widget="monetary" readonly="1"/>
+                                <field name="currency_id" invisible="1"/>
                             </group>
                         </group>
 
