@@ -16,7 +16,7 @@
     'license': 'LGPL-3',
     'sequence': 2,
 
-    'depends': ['base'],
+    'depends': ['base', 'sale'],
     'data': [
         'security/college_erp_security.xml',
         'security/ir.model.access.csv',
