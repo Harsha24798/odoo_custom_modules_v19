@@ -25,6 +25,7 @@
 
         'views/college_student_views.xml',
         'views/student_email_wizard_views.xml',
+        'views/sale_order_inherit_views.xml',
         'views/college_erp_menus_views.xml',
     ],
 

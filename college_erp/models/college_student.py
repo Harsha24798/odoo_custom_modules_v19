@@ -85,3 +85,10 @@ class CollegeStudent(models.Model):
             'target': 'new',
             'context': {'default_student_id': self.id},
         }
+
+    def _compute_display_name(self):
+        for record in self:
+            if record.admission_no:
+                record.display_name = f"[{record.admission_no}] {record.first_name}"
+            else:
+                record.display_name = record.name

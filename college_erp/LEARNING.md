@@ -23,6 +23,8 @@
 17. [Context Passing Between Views](#17-context-passing-between-views)
 18. [Key API Decorators — Quick Reference](#18-key-api-decorators--quick-reference)
 19. [Common Mistakes & How We Fixed Them](#19-common-mistakes--how-we-fixed-them)
+20. [Model Inheritance](#20-model-inheritance)
+21. [View Inheritance & XPath — Basic to Advanced](#21-view-inheritance--xpath--basic-to-advanced)
 
 ---
 
@@ -866,6 +868,447 @@ def create(self, vals):
 def create(self, vals_list):
     return super().create(vals_list)
 ```
+
+### 8. Wrong method name for display name + missing `@api.depends`
+```python
+# WRONG — three problems:
+# 1. name implies it computes student_id, not display_name
+# 2. missing @api.depends — never re-triggers on field changes
+# 3. no null check — f"[{False}]" produces "[False] S00001"
+def _compute_student_id(self):
+    for record in self:
+        record.display_name = f"[{record.student_id}] {record.name}"
+
+# CORRECT
+@api.depends('student_id', 'name')
+def _compute_display_name(self):
+    for record in self:
+        if record.student_id:
+            record.display_name = f"[{record.student_id.admission_no}] {record.name}"
+        else:
+            record.display_name = record.name
+```
+
+---
+
+---
+
+## 20. Model Inheritance
+
+Odoo has three types of model inheritance. Understanding which to use is critical.
+
+### Type 1 — Extension (`_inherit` only) ✅ Used in this module
+
+```python
+# models/inheritance_models.py
+from odoo import api, fields, models
+
+class InheritanceSaleOrder(models.Model):
+    _inherit = 'sale.order'
+
+    student_id = fields.Many2one('college.student', string='Student')
+```
+
+- **No new table** — the `student_id` column is added to the existing `sale_order` table.
+- The original `sale.order` model gets the new field everywhere it is used.
+- Class name (`InheritanceSaleOrder`) is irrelevant — `_inherit` is what matters.
+- `depends` in `__manifest__.py` **must** include the module that owns the parent model:
+  ```python
+  'depends': ['base', 'sale'],   # 'sale' owns sale.order
+  ```
+
+### Overriding methods in an inherited model
+
+You can also override any method from the parent using `_inherit`. Common use case — customising how the record displays its name.
+
+#### `_compute_display_name` — Odoo 17+/19
+
+```python
+@api.depends('student_id', 'name')
+def _compute_display_name(self):
+    for record in self:
+        if record.student_id:
+            record.display_name = f"[{record.student_id.admission_no}] {record.name}"
+        else:
+            record.display_name = record.name
+```
+
+**Result:** a sale order linked to `STD0001` displays as `[STD0001] S00001` in breadcrumbs and Many2one dropdowns.
+
+**Three rules for `_compute_display_name`:**
+
+| Rule | Why |
+|---|---|
+| Must be named exactly `_compute_display_name` | Odoo's `display_name` field already declares `compute='_compute_display_name'` — wrong name means it never runs |
+| Must have `@api.depends(...)` | Without it the value never updates when the dependencies change |
+| Must null-check Many2one fields | An empty Many2one is `False` — `f"[{False}]"` gives `[False]` in the string |
+
+#### `name_get()` — deprecated in Odoo 17+/19
+
+| Version | Correct method |
+|---|---|
+| Odoo 16 and below | `def name_get(self): return [(r.id, r.name) for r in self]` |
+| Odoo 17+ / 19 | `def _compute_display_name(self): record.display_name = ...` |
+
+`name_get()` still exists in v19 for backwards compatibility but triggers a deprecation warning. Always use `_compute_display_name` in new code.
+
+### Type 2 — Prototype / Copy (`_inherit` + `_name`)
+
+```python
+class CustomOrder(models.Model):
+    _name    = 'custom.order'    # NEW table: custom_order
+    _inherit = 'sale.order'      # copies all fields & methods from sale.order
+```
+
+- Creates a **brand new table** with all columns copied from the parent.
+- Changes to `sale.order` do NOT affect `custom.order` after this point.
+- Rare use case — mostly for building independent document types.
+
+### Type 3 — Delegation (`_inherits`)
+
+```python
+class CollegeStudent(models.Model):
+    _name    = 'college.student'
+    _inherits = {'res.partner': 'partner_id'}  # delegate to res.partner
+
+    partner_id = fields.Many2one('res.partner', required=True, ondelete='cascade')
+```
+
+- The student record stores its own data but **delegates** partner fields to a linked `res.partner` record.
+- Accessing `student.name` transparently reads from `partner.name`.
+- Two rows are created on save — one in each table.
+- Used when your model IS a partner (contact, employee, etc.).
+
+### Inheritance comparison
+
+| | Extension | Prototype | Delegation |
+|---|---|---|---|
+| New table? | No | Yes | Yes (two tables) |
+| Syntax | `_inherit = 'x'` | `_name='y'` + `_inherit='x'` | `_inherits = {'x': 'fk'}` |
+| Affects original? | Yes | No | No |
+| Use case | Add fields/methods to existing model | Independent copy | IS-A relationship with another model |
+
+---
+
+## 21. View Inheritance & XPath — Basic to Advanced
+
+### What is View Inheritance?
+
+Odoo views are stored as XML records in the database. View inheritance lets you **modify an existing view without touching the original file** — you create a new view record that points to the parent and describes only the changes.
+
+This is how every module adds fields to `sale.order`, `res.partner`, etc. without overwriting the original view.
+
+---
+
+### Minimal structure
+
+```xml
+<record id="your_unique_id" model="ir.ui.view">
+    <field name="name">descriptive.name.here</field>       <!-- internal label -->
+    <field name="model">sale.order</field>                  <!-- which model -->
+    <field name="inherit_id" ref="sale.view_order_form"/>   <!-- parent view XML id -->
+    <field name="arch" type="xml">
+
+        <!-- XPath expressions go here -->
+        <xpath expr="//field[@name='partner_id']" position="after">
+            <field name="student_id"/>
+        </xpath>
+
+    </field>
+</record>
+```
+
+**`inherit_id` ref format:** `<module>.<view_xml_id>`
+- `sale.view_order_form` — the form view defined in the `sale` module with id `view_order_form`
+- `college_erp.college_student_form_view` — a view in your own module
+
+---
+
+### XPath — Selecting Nodes
+
+XPath is the language used to locate the exact XML element you want to modify.
+
+#### Select by field name
+```xml
+<xpath expr="//field[@name='partner_id']" position="after">
+```
+`//` = anywhere in the document | `field` = element type | `[@name='x']` = attribute filter
+
+#### Select by button name
+```xml
+<xpath expr="//button[@name='action_confirm']" position="before">
+```
+
+#### Select by element type only
+```xml
+<xpath expr="//sheet" position="inside">       <!-- targets the <sheet> element -->
+<xpath expr="//notebook" position="inside">    <!-- targets the <notebook> -->
+<xpath expr="//header" position="inside">      <!-- targets the <header> bar -->
+```
+
+#### Select by string attribute
+```xml
+<xpath expr="//page[@name='order_line']" position="after">    <!-- tab by name -->
+<xpath expr="//page[@string='Other Info']" position="before"> <!-- tab by label -->
+```
+
+#### Select a group
+```xml
+<xpath expr="//group[@name='sale_order_secondary_col']" position="inside">
+```
+
+#### Select by multiple attributes (AND)
+```xml
+<!-- field named 'product_id' that also has widget 'many2one_barcode' -->
+<xpath expr="//field[@name='product_id'][@widget='many2one_barcode']" position="replace">
+```
+
+#### Select by class
+```xml
+<xpath expr="//div[@class='oe_title']" position="inside">
+```
+
+#### Select a specific button in the header
+```xml
+<xpath expr="//header/button[@name='action_confirm']" position="attributes">
+    <attribute name="invisible">1</attribute>
+</xpath>
+```
+
+#### Parent axis — go up one level
+```xml
+<!-- select the <group> that contains partner_id -->
+<xpath expr="//field[@name='partner_id']/.." position="inside">
+```
+
+#### Index — when multiple matches exist, pick one
+```xml
+<xpath expr="(//group)[1]" position="inside">   <!-- first <group> in the view -->
+<xpath expr="(//group)[2]" position="after">    <!-- second <group> -->
+```
+
+---
+
+### `position` attribute — What to Do at the Match
+
+| `position` | Effect |
+|---|---|
+| `after` | Insert new XML **after** the matched node |
+| `before` | Insert new XML **before** the matched node |
+| `inside` | **Append** new XML as the last child inside the matched node |
+| `replace` | **Replace** the matched node entirely with new XML |
+| `attributes` | Modify **attributes** of the matched node (no content added) |
+
+#### `after` — most common, add a field below another
+```xml
+<xpath expr="//field[@name='partner_id']" position="after">
+    <field name="student_id"/>
+</xpath>
+```
+
+#### `before` — insert above
+```xml
+<xpath expr="//field[@name='partner_id']" position="before">
+    <field name="student_id"/>
+</xpath>
+```
+
+#### `inside` — append into a container
+```xml
+<!-- add a new tab to the notebook -->
+<xpath expr="//notebook" position="inside">
+    <page string="College Info" name="college_info">
+        <group>
+            <field name="student_id"/>
+        </group>
+    </page>
+</xpath>
+```
+
+#### `replace` — swap out an element
+```xml
+<!-- replace the existing field with a different widget -->
+<xpath expr="//field[@name='partner_id']" position="replace">
+    <field name="partner_id" widget="many2one_avatar"/>
+</xpath>
+```
+
+#### `attributes` — change an attribute without replacing the element
+```xml
+<!-- make a field invisible -->
+<xpath expr="//field[@name='commitment_date']" position="attributes">
+    <attribute name="invisible">1</attribute>
+</xpath>
+
+<!-- make a field required -->
+<xpath expr="//field[@name='client_order_ref']" position="attributes">
+    <attribute name="required">1</attribute>
+</xpath>
+
+<!-- add a domain to a Many2one -->
+<xpath expr="//field[@name='user_id']" position="attributes">
+    <attribute name="domain">[('share', '=', False)]</attribute>
+</xpath>
+
+<!-- change a button's string label -->
+<xpath expr="//button[@name='action_confirm']" position="attributes">
+    <attribute name="string">Approve Order</attribute>
+</xpath>
+```
+
+---
+
+### Shorthand syntax — `field` / `button` / `group` directly (no xpath tag)
+
+For simple cases Odoo lets you skip the `<xpath>` tag and use the element directly as the locator:
+
+```xml
+<!-- Equivalent to xpath expr="//field[@name='partner_id']" position="after" -->
+<field name="partner_id" position="after">
+    <field name="student_id"/>
+</field>
+```
+
+```xml
+<button name="action_confirm" position="before">
+    <button name="action_custom" type="object" string="Custom"/>
+</button>
+```
+
+This only works when the element name + attribute combination uniquely identifies one node. Use full `<xpath>` when it does not.
+
+---
+
+### Real example from this module
+
+```xml
+<!-- views/sale_order_inherit_views.xml -->
+<record id="sale_order_form_inherit_college" model="ir.ui.view">
+    <field name="name">sale.order.form.inherit.college</field>
+    <field name="model">sale.order</field>
+    <field name="inherit_id" ref="sale.view_order_form"/>
+    <field name="arch" type="xml">
+
+        <xpath expr="//field[@name='partner_id']" position="after">
+            <field name="student_id"/>
+        </xpath>
+
+    </field>
+</record>
+```
+
+Result — the Sale Order form now shows:
+```
+Customer  : [existing field]
+Student   : STD0001          ← injected by college_erp
+```
+
+---
+
+### Advanced — multiple XPath blocks in one view
+
+You can have as many `<xpath>` blocks as you need in a single inherited view:
+
+```xml
+<field name="arch" type="xml">
+
+    <!-- 1. Add student after customer -->
+    <xpath expr="//field[@name='partner_id']" position="after">
+        <field name="student_id"/>
+    </xpath>
+
+    <!-- 2. Add a new tab -->
+    <xpath expr="//notebook" position="inside">
+        <page string="College Info" name="college_info">
+            <field name="student_id" readonly="1"/>
+        </page>
+    </xpath>
+
+    <!-- 3. Hide a field -->
+    <xpath expr="//field[@name='commitment_date']" position="attributes">
+        <attribute name="invisible">1</attribute>
+    </xpath>
+
+    <!-- 4. Add a button to the header -->
+    <xpath expr="//header" position="inside">
+        <button name="action_custom" type="object" string="Custom Action"/>
+    </xpath>
+
+</field>
+```
+
+---
+
+### `priority` — controlling inheritance order
+
+When **multiple** views inherit the same parent, `priority` controls the order they are applied (lower number = applied first, default = 16):
+
+```xml
+<record id="my_view" model="ir.ui.view">
+    ...
+    <field name="priority">20</field>   <!-- applied after priority-16 views -->
+</record>
+```
+
+Use this when your XPath depends on a node added by another inherited view (e.g., a field added by another module).
+
+---
+
+### `active` — disabling an inherited view
+
+```xml
+<record id="sale_order_form_inherit_college" model="ir.ui.view">
+    ...
+    <field name="active" eval="False"/>   <!-- view exists but is not applied -->
+</record>
+```
+
+Useful to ship a view as disabled by default, letting users activate it via Settings → Technical → Views.
+
+---
+
+### `mode` — primary vs extension
+
+| `mode` | Meaning |
+|---|---|
+| `extension` (default) | Inherits from parent — applies XPath patches |
+| `primary` | Becomes a standalone view that happens to start from parent — used for custom list/form variants |
+
+```xml
+<field name="mode">primary</field>
+```
+
+Primary mode is used by the website module to create desktop vs mobile variants of the same view.
+
+---
+
+### How to find parent view XML IDs
+
+To write `inherit_id ref="..."` you need the parent view's XML id. Three ways to find it:
+
+**1. Debug mode — inspect the view directly**
+Open the form, go to **Settings → Technical → Views**, search by model name.
+
+**2. Debug mode — view metadata**
+In debug mode, open any form, press `Ctrl+F1` (or the debug icon) → "Edit View" shows the XML id.
+
+**3. Search the source**
+```
+grep -r "view_order_form" odoo/addons/sale/views/
+```
+
+---
+
+### Common XPath mistakes
+
+| Mistake | Result | Fix |
+|---|---|---|
+| `expr="//field[name='x']"` | No match | Use `@name` not `name`: `[@name='x']` |
+| `ref="view_order_form"` | KeyError | Always include module: `ref="sale.view_order_form"` |
+| Targeting a field that doesn't exist | View error on install | Check the field name in the parent view source |
+| Multiple nodes match the XPath | Odoo applies to the first match | Be more specific or use index `(//group)[2]` |
+| Inheriting before the parent loads | Error on install | Ensure `depends` includes the parent module |
+| Using `position="inside"` on `<field>` | Nests a field inside another field | Use `after` or `before` for fields |
 
 ---
 
