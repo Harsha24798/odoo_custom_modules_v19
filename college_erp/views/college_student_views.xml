@@ -14,6 +14,8 @@
                 <field name="email"/>
                 <field name="mother_name" optional="hide"/>
                 <field name="father_name" optional="hide"/>
+                <field name="birth_day"/>
+                <field name="age"/>
                 <field name="phone"/>
                 <field name="communication_address" optional="hide"/>
                 <field name="image_1920" optional="hide"/>
@@ -27,6 +29,10 @@
         <field name="model">college.student</field>
         <field name="arch" type="xml">
             <form string="College Student Form" create="false">
+                <header>
+                        <button name="action_rainbow_effect" type="object" string="Show Rainbow Effect" class="oe_highlight" />
+                    <button name="action_send_email" type="object" string="Send Email" class="oe_highlight" />
+                    </header>
                 <sheet>
                     <field name="image_1920" widget="image" class="oe_avatar"/>
                     <group>
@@ -38,6 +44,8 @@
                             <field name="email"/>
                             <field name="mother_name"/>
                             <field name="father_name"/>
+                            <field name="birth_day"/>
+                            <field name="age"/>
                         </group>
                         <group>
                             <field name="phone"/>

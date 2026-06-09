@@ -200,3 +200,17 @@ class Property(models.Model):
         self.ensure_one()
         return f"Estate Property - {self.name} Report"
 
+    # Send Email
+    def action_send_email(self):
+        _logger.info("Sending email for property %s", self.id)
+
+        template = self.env.ref(
+            'real_estate_ads.email_template_new_property',
+            raise_if_not_found=False
+        )
+
+        if not template:
+            _logger.error("Email template not found")
+            return
+
+        template.send_mail(self.id, force_send=True)

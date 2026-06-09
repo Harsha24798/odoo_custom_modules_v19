@@ -36,7 +36,7 @@ class PropertyOffers(models.Model):
         string='Validity (Days)',
         compute='_compute_validity',
         store=True,
-        required=True,
+        # required=True,
         help='Number of days the offer is valid (auto-calculated from deadline - creation_date)'
     )
 
