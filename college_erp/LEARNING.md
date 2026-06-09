@@ -14,7 +14,7 @@
 8. [CRUD Methods — create & write](#8-crud-methods--create--write)
 9. [Computed Fields & @api.depends](#9-computed-fields--apidepends)
 10. [ir.sequence — Auto Numbering](#10-irsequence--auto-numbering)
-11. [TransientModel — Wizards](#11-transientmodel--wizards)
+11. [TransientModel — Wizards](#11-transientmodel--wizards) · `self.env.user`
 12. [Security — Groups, Privileges & Access Rights](#12-security--groups-privileges--access-rights)
 13. [Views — XML UI Layer](#13-views--xml-ui-layer)
 14. [Menus & Window Actions](#14-menus--window-actions)
@@ -409,7 +409,8 @@ class StudentEmail(models.TransientModel):
     _description = 'Send Email to Student'
 
     student_id = fields.Many2one('college.student', readonly=True)
-    email_to   = fields.Char(string='To', readonly=True)
+    email_from = fields.Char(string='From', readonly=True)  # sender — logged-in user
+    email_to   = fields.Char(string='To', readonly=True)    # recipient — student's email
     subject    = fields.Char(string='Subject', required=True)
     body       = fields.Html(string='Body', required=True)
 ```
@@ -424,25 +425,48 @@ def default_get(self, fields_list):
         student = self.env['college.student'].browse(student_id)
         res['student_id'] = student.id
         res['email_to'] = student.email
+    res['email_from'] = self.env.user.email   # always set from logged-in user
     return res
 ```
 - `default_get` is called before the wizard form opens.
 - `self.env.context` is a dict of values passed when the action was triggered.
 - `default_<field_name>` in context is the Odoo convention for pre-filling a field.
 - `browse(id)` fetches a record by primary key without a search query.
+- `self.env.user` is the currently logged-in Odoo user record (see section 11a below).
+
+### `self.env.user` — the logged-in user
+```python
+self.env.user          # res.users record of the logged-in user
+self.env.user.email    # their email address (from their profile)
+self.env.user.name     # their display name
+self.env.user.id       # their user ID
+self.env.uid           # same as self.env.user.id (integer shortcut)
+```
+
+`self.env.user` is available everywhere in model methods. It always reflects whoever triggered the current request — never a background system user unless running in `sudo()`.
+
+| Expression | Returns |
+|---|---|
+| `self.env.user` | `res.users` recordset (single record) |
+| `self.env.user.email` | e.g. `'harsha@college.edu'` |
+| `self.env.user.partner_id` | linked `res.partner` record |
+| `self.env.company` | current company record |
+| `self.env.lang` | current UI language code |
 
 ### Sending the email
 ```python
 def action_send(self):
     self.ensure_one()
     self.env['mail.mail'].create({
-        'subject': self.subject,
-        'email_to': self.email_to,
-        'body_html': self.body,
+        'subject':    self.subject,
+        'email_from': self.email_from,  # sender address on the outgoing email
+        'email_to':   self.email_to,
+        'body_html':  self.body,
     }).send()
     return {'type': 'ir.actions.act_window_close'}
 ```
 - `mail.mail` is Odoo's outgoing email model (requires an outgoing mail server configured in Settings).
+- `email_from` sets the `From:` header on the SMTP message.
 - `.send()` dispatches immediately.
 - Returning `{'type': 'ir.actions.act_window_close'}` closes the wizard popup.
 
@@ -598,7 +622,8 @@ access_college_principal,...,group_college_erp_principal,1,1,1,1
 <form string="Send Email">
     <group>
         <field name="student_id"/>
-        <field name="email_to" readonly="1"/>
+        <field name="email_from" readonly="1"/>  <!-- From: logged-in user's email -->
+        <field name="email_to"   readonly="1"/>  <!-- To:   student's email -->
         <field name="subject"/>
     </group>
     <group>
@@ -610,6 +635,17 @@ access_college_principal,...,group_college_erp_principal,1,1,1,1
     </footer>
 </form>
 ```
+
+The wizard renders as:
+```
+Student  : STD0001
+From     : harsha@college.edu       ← self.env.user.email (readonly)
+To       : student@example.com      ← student.email (readonly)
+Subject  : ____________________
+Body     : [rich text editor]
+          [Send]  [Cancel]
+```
+
 Wizards use `<footer>` instead of `<header>` for action buttons.
 
 ---
@@ -672,18 +708,29 @@ Returning a dict with `'effect'` key from a button method triggers a client-side
 
 ```python
 self.env['mail.mail'].create({
-    'subject': self.subject,
-    'email_to': self.email_to,   # comma-separated string for multiple recipients
-    'body_html': self.body,
+    'subject':    self.subject,
+    'email_from': self.email_from,  # From: header — sender's address
+    'email_to':   self.email_to,    # To:   header — comma-separated recipients
+    'body_html':  self.body,
 }).send()
 ```
 
-**`mail.mail` vs `mail.message`:**
+### `mail.mail` key fields
+
+| Field | Purpose |
+|---|---|
+| `email_from` | `From:` address on the outgoing email (defaults to company email if omitted) |
+| `email_to` | `To:` address(es), comma-separated |
+| `email_cc` | `CC:` address(es) |
+| `subject` | Email subject line |
+| `body_html` | HTML body content |
+
+### `mail.mail` vs `mail.message`
 
 | | `mail.mail` | `mail.message` |
 |---|---|---|
 | Purpose | Outgoing SMTP email | Internal chatter message |
-| Sends to external email | Yes | No (unless email_from set) |
+| Sends to external email | Yes | No |
 | Requires mail server | Yes | No |
 | Stored permanently | Cleaned after send | Yes |
 

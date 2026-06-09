@@ -8,6 +8,7 @@
             <form string="Send Email">
                 <group>
                     <field name="student_id"/>
+                    <field name="email_from" readonly="1"/>
                     <field name="email_to" readonly="1"/>
                     <field name="subject"/>
                 </group>
