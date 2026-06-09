@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+
+    <record id="student_email_wizard_form_view" model="ir.ui.view">
+        <field name="name">student.email.view.form</field>
+        <field name="model">student.email</field>
+        <field name="arch" type="xml">
+            <form string="Send Email">
+                <group>
+                    <field name="student_id"/>
+                    <field name="email_to" readonly="1"/>
+                    <field name="subject"/>
+                </group>
+                <group>
+                    <field name="body" widget="html" nolabel="1"/>
+                </group>
+                <footer>
+                    <button name="action_send" type="object" string="Send" class="btn-primary"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+
+</odoo>

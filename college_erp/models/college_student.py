@@ -5,6 +5,7 @@ from odoo.exceptions import ValidationError
 class CollegeStudent(models.Model):
     _name = 'college.student'
     _description = 'College Student Details'
+    _rec_name = 'admission_no'
 
     _admission_no_unique = models.Constraint(
         'UNIQUE(admission_no)',
@@ -73,3 +74,14 @@ class CollegeStudent(models.Model):
                 )
             else:
                 record.age = 0
+
+    def action_send_email(self):
+        self.ensure_one()
+        return {
+            'name': 'Send Email',
+            'type': 'ir.actions.act_window',
+            'res_model': 'student.email',
+            'view_mode': 'form',
+            'target': 'new',
+            'context': {'default_student_id': self.id},
+        }

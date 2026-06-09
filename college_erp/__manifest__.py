@@ -24,6 +24,7 @@
         'data/ir_sequence_data.xml',
 
         'views/college_student_views.xml',
+        'views/student_email_wizard_views.xml',
         'views/college_erp_menus_views.xml',
     ],
 
