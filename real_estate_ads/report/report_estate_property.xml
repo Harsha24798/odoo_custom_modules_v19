@@ -4,19 +4,103 @@
         <template id="report_estate_property_document">
             <t t-call="web.external_layout">
                 <div class="page">
-                    <h2>Property Report</h2>
-                    <p><strong>Name:</strong> <span t-field="doc.name"/></p>
-                    <p><strong>Expected Price:</strong> <span t-field="doc.expected_price"/></p>
-                    <p><strong>Selling Price:</strong> <span t-field="doc.selling_price"/></p>
-                    <p><strong>Type:</strong> <span t-field="doc.type_id.name"/></p>
-                    <p><strong>Description:</strong> <span t-field="doc.description"/></p>
-                    <p><strong>Bedrooms:</strong> <span t-field="doc.bedrooms"/></p>
-                    <p><strong>Living Area:</strong> <span t-field="doc.living_area"/> sqm</p>
-                    <p><strong>Garden Area:</strong> <span t-field="doc.garden_area"/> sqm</p>
-                    <p><strong>Total Area:</strong> <span t-field="doc.total_area"/> sqm</p>
-                    <p><strong>Garage:</strong> <span t-field="doc.garage"/></p>
-                    <p><strong>Garden:</strong> <span t-field="doc.garden"/></p>
-                    <p><strong>Status:</strong> <span t-field="doc.state"/></p>
+
+                    <!-- Title band -->
+                    <div class="row mb-4">
+                        <div class="col-8">
+                            <h2 class="mb-0" t-field="doc.name"/>
+                            <span class="text-muted">
+                                <i class="fa fa-map-marker"/> <span t-field="doc.postcode"/>
+                            </span>
+                        </div>
+                        <div class="col-4 text-end">
+                            <t t-set="state_class" t-value="{'new': 'text-bg-info', 'received': 'text-bg-warning', 'accepted': 'text-bg-primary', 'sold': 'text-bg-success', 'cancel': 'text-bg-danger'}.get(doc.state, 'text-bg-secondary')"/>
+                            <span t-attf-class="badge #{state_class} fs-6">
+                                <span t-field="doc.state"/>
+                            </span>
+                            <h3 class="mt-2 mb-0">
+                                <span t-field="doc.expected_price"
+                                      t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                            </h3>
+                            <small class="text-muted">Expected Price</small>
+                        </div>
+                    </div>
+
+                    <!-- Pricing -->
+                    <div class="row mb-4">
+                        <div class="col-4">
+                            <div class="border rounded p-2 text-center">
+                                <small class="text-muted d-block">Expected Price</small>
+                                <strong t-field="doc.expected_price"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-2 text-center">
+                                <small class="text-muted d-block">Best Offer</small>
+                                <strong t-field="doc.best_offer"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                            </div>
+                        </div>
+                        <div class="col-4">
+                            <div class="border rounded p-2 text-center">
+                                <small class="text-muted d-block">Selling Price</small>
+                                <strong t-field="doc.selling_price"
+                                        t-options="{'widget': 'monetary', 'display_currency': doc.currency_id}"/>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Details -->
+                    <h4 class="mt-4">Property Details</h4>
+                    <table class="table table-sm">
+                        <tbody>
+                            <tr>
+                                <td class="fw-bold w-25">Property Type</td>
+                                <td><span t-field="doc.type_id.name"/></td>
+                                <td class="fw-bold w-25">Available From</td>
+                                <td><span t-field="doc.date_availability"/></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Bedrooms</td>
+                                <td><span t-field="doc.bedrooms"/></td>
+                                <td class="fw-bold">Facades</td>
+                                <td><span t-field="doc.facades"/></td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Living Area</td>
+                                <td><span t-field="doc.living_area"/> sqm</td>
+                                <td class="fw-bold">Total Area</td>
+                                <td><span t-field="doc.total_area"/> sqm</td>
+                            </tr>
+                            <tr>
+                                <td class="fw-bold">Garage</td>
+                                <td><span t-field="doc.garage"/></td>
+                                <td class="fw-bold">Garden</td>
+                                <td><span t-field="doc.garden"/></td>
+                            </tr>
+                            <tr t-if="doc.garden">
+                                <td class="fw-bold">Garden Area</td>
+                                <td><span t-field="doc.garden_area"/> sqm</td>
+                                <td class="fw-bold">Garden Orientation</td>
+                                <td><span t-field="doc.garden_orientation"/></td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Tags -->
+                    <div t-if="doc.tag_ids" class="mb-3">
+                        <t t-foreach="doc.tag_ids" t-as="tag">
+                            <span class="badge text-bg-secondary me-1" t-field="tag.name"/>
+                        </t>
+                    </div>
+
+                    <!-- Description -->
+                    <div t-if="doc.description">
+                        <h4 class="mt-4">Description</h4>
+                        <p class="border-start border-3 ps-3 text-muted" t-field="doc.description"/>
+                    </div>
+
                 </div>
             </t>
         </template>
