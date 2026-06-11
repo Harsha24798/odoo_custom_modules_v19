@@ -1,0 +1,58 @@
+flowchart TD
+    classDef stateP fill:#dbeafe,stroke:#3b82f6,color:#1e40af
+    classDef stateO fill:#dcfce7,stroke:#16a34a,color:#14532d
+    classDef actor fill:#ede9fe,stroke:#7c3aed,color:#4c1d95
+    classDef auto fill:#fce7f3,stroke:#db2777,color:#831843
+    classDef comp fill:#fff7ed,stroke:#f97316,color:#7c2d12
+
+    subgraph ROLES["User Roles — implied hierarchy: User < Sales < Manager"]
+        direction LR
+        A_USR(["Property User\nCreate and see own offers only"]):::actor
+        A_SALES(["Property Sales\nAccept/Refuse offers · Mark Sold/Canceled"]):::actor
+        A_MGR(["Property Manager\nFull CRUD · Types · Tags · Reports"]):::actor
+        A_CRON(["Daily Cron\nir.cron"]):::auto
+        A_USR -.->|"implied by"| A_SALES
+        A_SALES -.->|"implied by"| A_MGR
+    end
+
+    subgraph PROP["estate.property — State Machine"]
+        PS_NEW["NEW"]:::stateP
+        PS_REC["OFFER RECEIVED"]:::stateP
+        PS_ACC["OFFER ACCEPTED"]:::stateP
+        PS_SOLD["SOLD"]:::stateP
+        PS_CAN["CANCELED"]:::stateP
+    end
+
+    subgraph OFFERBOX["estate.property.offers — State Machine"]
+        OS_PEN["PENDING\ndeadline = creation_date + 7 days"]:::stateO
+        OS_ACC["ACCEPTED"]:::stateO
+        OS_REF["REFUSED"]:::stateO
+    end
+
+    COMP["Computed Fields\nbest_offer = MAX of offer prices\nselling_price = accepted price or best_offer\ntotal_area = living_area + garden_area\noffer_count = number of offers\nvalidity = deadline minus creation_date"]:::comp
+
+    subgraph AUTO["Automation and Outputs"]
+        AU_CRON["Cron: Extend Deadlines\nPENDING offers with expired deadline\nSet deadline = today + 7 days"]:::auto
+        AU_EMAIL["Email Notification\nmail.template send_mail"]:::auto
+        AU_PDF["QWeb PDF Report\nManager-only binding"]:::auto
+    end
+
+    A_USR -->|"1 - Create estate.property"| PS_NEW
+    A_USR -->|"2 - Submit Offer\nprice, partner, deadline"| OS_PEN
+    OS_PEN -->|"3 - First offer on NEW property\ncreate() auto-advances state"| PS_REC
+    A_SALES -->|"4 - action_accept_offer"| OS_ACC
+    OS_ACC -->|"5 - property state = accepted"| PS_ACC
+    OS_ACC -->|"6 - All other offers auto-refused"| OS_REF
+    A_SALES -->|"4b - action_refuse_offer"| OS_REF
+    OS_REF -->|"offers still exist"| PS_REC
+    OS_REF -->|"no offers remain"| PS_NEW
+    A_SALES -->|"7 - action_sold"| PS_SOLD
+    A_SALES -->|"action_cancel"| PS_CAN
+    A_CRON -->|"Daily schedule"| AU_CRON
+    AU_CRON -.->|"extend expired offer deadlines"| OS_PEN
+    A_SALES -->|"action_send_email"| AU_EMAIL
+    A_MGR -->|"Print"| AU_PDF
+    OS_PEN -.->|"price/status changes"| COMP
+    OS_ACC -.->|"price/status changes"| COMP
+    OS_REF -.->|"price/status changes"| COMP
+    PS_NEW -.->|"area changes"| COMP

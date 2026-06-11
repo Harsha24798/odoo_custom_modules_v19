@@ -12,7 +12,8 @@ class PropertyOffers(models.Model):
     user_id = fields.Many2one(
         'res.users',
         default=lambda self: self.env.user,
-        readonly=True
+        readonly=True,
+        index=True,
     )
 
     name = fields.Char(string='Name', compute='_compute_name')
@@ -30,6 +31,7 @@ class PropertyOffers(models.Model):
         [('accepted', 'Accepted'), ('refused', 'Refused'), ('pending', 'Pending')],
         string='Status',
         default='pending',
+        index=True,
         help='Status of the offer'
     )
     validity = fields.Integer(
@@ -53,12 +55,14 @@ class PropertyOffers(models.Model):
         'res.partner',
         string='Customer',
         required=True,
+        index=True,
         help='Customer making the offer'
     )
     property_id = fields.Many2one(
         'estate.property',
         string='Property',
         required=True,
+        index=True,
         help='Property for which the offer is made'
     )
 
@@ -71,6 +75,7 @@ class PropertyOffers(models.Model):
     # Regular stored field (set on creation, can be extended by cron or manual edit)
     deadline = fields.Date(
         string='Deadline',
+        index=True,
         help='Expiry date of the offer (auto-calculated at creation, editable or extended by cron)',
         readonly=False
     )
@@ -179,42 +184,44 @@ class PropertyOffers(models.Model):
 
     def action_accept_offer(self):
         """Accept the offer, update the property state, and refuse other offers."""
-        # Only users in the sales or manager group may accept offers.
         if not (self.env.user.has_group('real_estate_ads.group_property_sales') or self.env.user.has_group('real_estate_ads.group_property_manager')):
             raise AccessError('You do not have the rights to accept offers.')
 
-        # Prevent accepting an offer if another offer on the same property is
-        # already accepted. The user must refuse the previously accepted offer
-        # before accepting a different one.
+        # Guard: block if another accepted offer already exists for any of these properties.
         for offer in self:
             if offer.property_id:
-                already_accepted = offer.property_id.offer_ids.filtered(
-                    lambda o: o.status == 'accepted' and o.id != offer.id
-                )
+                already_accepted = self.env['estate.property.offers'].search([
+                    ('property_id', '=', offer.property_id.id),
+                    ('status', '=', 'accepted'),
+                    ('id', '!=', offer.id),
+                ], limit=1)
                 if already_accepted:
                     raise ValidationError(
                         'This property already has an accepted offer (ID: %s). '
-                        'Refuse the existing accepted offer before accepting another.' % already_accepted[0].id
+                        'Refuse the existing accepted offer before accepting another.' % already_accepted.id
                     )
 
-        # No conflicts: persist acceptance and refuse other offers for each accepted record
         self.write({'status': 'accepted'})
-        for offer in self:
-            if offer.property_id:
-                offer.property_id.state = 'accepted'
-                other_offers = offer.property_id.offer_ids.filtered(lambda o: o.id != offer.id)
-                other_offers.write({'status': 'refused'})
+        unique_properties = self.mapped('property_id')
+        unique_properties.write({'state': 'accepted'})
+        # Refuse all other non-refused offers for the same properties in one query.
+        self.env['estate.property.offers'].search([
+            ('property_id', 'in', unique_properties.ids),
+            ('id', 'not in', self.ids),
+            ('status', '!=', 'refused'),
+        ]).write({'status': 'refused'})
 
     def action_refuse_offer(self):
-        """Refuse the offer. Reverts property state to 'new' if no pending offers remain."""
+        """Refuse the offer. Reverts property state to 'new' if no pending/accepted offers remain."""
         if not (self.env.user.has_group('real_estate_ads.group_property_sales') or self.env.user.has_group('real_estate_ads.group_property_manager')):
             raise AccessError('You do not have the rights to refuse offers.')
 
         self.write({'status': 'refused'})
-        for offer in self:
-            if offer.property_id:
-                remaining = offer.property_id.offer_ids.filtered(
-                    lambda o: o.status in ('pending', 'accepted')
-                )
-                offer.property_id.state = 'received' if remaining else 'new'
+        # One state update per unique property, not per offer.
+        for prop in self.mapped('property_id'):
+            has_active = self.env['estate.property.offers'].search([
+                ('property_id', '=', prop.id),
+                ('status', 'in', ['pending', 'accepted']),
+            ], limit=1)
+            prop.state = 'received' if has_active else 'new'
 

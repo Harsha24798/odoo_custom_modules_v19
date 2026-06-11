@@ -1,0 +1,51 @@
+erDiagram
+    ESTATE_PROPERTY {
+        char name
+        char postcode
+        monetary expected_price
+        monetary best_offer
+        monetary selling_price
+        integer total_area
+        integer offer_count
+        selection state
+        integer bedrooms
+        integer living_area
+        integer facades
+        boolean garage
+        boolean garden
+        integer garden_area
+        date date_availability
+    }
+    ESTATE_PROPERTY_TYPE {
+        char name
+    }
+    ESTATE_PROPERTY_TAGS {
+        char name
+        integer color
+    }
+    ESTATE_PROPERTY_OFFERS {
+        monetary price
+        selection status
+        date deadline
+        date creation_date
+        integer validity
+    }
+    RES_PARTNER {
+        char name
+        char phone
+    }
+    RES_USERS {
+        char name
+    }
+    RES_CURRENCY {
+        char name
+    }
+
+    ESTATE_PROPERTY ||--o{ ESTATE_PROPERTY_OFFERS : "offer_ids One2many"
+    ESTATE_PROPERTY }o--o| ESTATE_PROPERTY_TYPE : "type_id Many2one"
+    ESTATE_PROPERTY }o--o{ ESTATE_PROPERTY_TAGS : "tag_ids Many2many"
+    ESTATE_PROPERTY }o--o| RES_PARTNER : "buyer_id Many2one"
+    ESTATE_PROPERTY }o--o| RES_USERS : "sales_id Many2one"
+    ESTATE_PROPERTY }o--|| RES_CURRENCY : "currency_id Many2one"
+    ESTATE_PROPERTY_OFFERS }|--o| RES_PARTNER : "partner_id Many2one"
+    ESTATE_PROPERTY_OFFERS }|--o| RES_USERS : "user_id Many2one"

@@ -1,5 +1,5 @@
 from odoo import models, fields, api
-from odoo.exceptions import ValidationError, AccessError
+from odoo.exceptions import ValidationError, AccessError, UserError
 from datetime import timedelta
 import logging
 
@@ -10,11 +10,11 @@ class Property(models.Model):
     _inherit = ['mail.thread']
     _description = 'Real Estate Property'
 
-    name = fields.Char(string='Name', required=True)
+    name = fields.Char(string='Name', required=True, index=True)
     description = fields.Text(string='Description')
-    postcode = fields.Char(string='Postcode')
-    date_availability = fields.Date(string='Available From')
-    expected_price = fields.Monetary(string='Expected Price', currency_field='currency_id', tracking=True)
+    postcode = fields.Char(string='Postcode', index=True)
+    date_availability = fields.Date(string='Available From', index=True)
+    expected_price = fields.Monetary(string='Expected Price', currency_field='currency_id', tracking=True, index=True)
     bedrooms = fields.Integer(string='Bedrooms')
     living_area = fields.Integer(string='Living Area(sqm)')
     facades = fields.Integer(string='Facades')
@@ -22,10 +22,10 @@ class Property(models.Model):
     garden = fields.Boolean(string='Garden', default=False)
     garden_area = fields.Integer(string='Garden Area')
     phone = fields.Char(string='Phone', related='buyer_id.phone', readonly=True)
-    offer_count = fields.Integer(string="Offer Count", compute='_compute_offer_count')
+    offer_count = fields.Integer(string="Offer Count", compute='_compute_offer_count', store=True)
     total_area = fields.Integer(string='Total Area', compute='_compute_total_area', store=True, help='Total area in sqm (living_area + garden_area)')
 
-    state = fields.Selection([('new', 'New'), ('received', 'Offer Received'), ('accepted', 'Offer Accepted'), ('sold', 'Sold'), ('cancel', 'Canceled')], string='Status', default='new')
+    state = fields.Selection([('new', 'New'), ('received', 'Offer Received'), ('accepted', 'Offer Accepted'), ('sold', 'Sold'), ('cancel', 'Canceled')], string='Status', default='new', index=True)
     garden_orientation = fields.Selection([('north', 'North'), ('south', 'South'), ('east', 'East'), ('west', 'West')], string='Garden Orientation', default='north')
 
     best_offer = fields.Monetary(
@@ -48,7 +48,7 @@ class Property(models.Model):
 
     # Many to One
     currency_id = fields.Many2one('res.currency', string='Currency', default=lambda self: self.env.company.currency_id)
-    type_id = fields.Many2one('estate.property.type', string='Property Type')
+    type_id = fields.Many2one('estate.property.type', string='Property Type', index=True)
     sales_id = fields.Many2one('res.users', string='Salesman')
     buyer_id = fields.Many2one('res.partner', string='Buyer')
 
@@ -86,20 +86,9 @@ class Property(models.Model):
 
     @api.onchange('offer_ids')
     def _onchange_offer_ids(self):
-        """Ensure best_offer and selling_price update in the form while editing one many offers
-        (before the property record is saved). Odoo recomputes stored computed fields on save,
-        but the onchange keeps the UI responsive when creating/editing offers inline.
-        """
-        for record in self:
-            # Recompute best_offer for unsaved inline changes
-            offer_prices = record.offer_ids.mapped('price')
-            record.best_offer = max(offer_prices) if offer_prices else 0.0
-            # Selling price follows accepted offer if present, otherwise highest offer
-            accepted = record.offer_ids.filtered(lambda o: o.status == 'accepted')
-            if accepted:
-                record.selling_price = max(accepted.mapped('price'))
-            else:
-                record.selling_price = record.best_offer
+        """Keep best_offer and selling_price responsive in the form before save."""
+        self._compute_best_offer()
+        self._compute_selling_price()
 
     @api.depends('offer_ids.price', 'offer_ids.status')
     def _compute_selling_price(self):
@@ -146,52 +135,17 @@ class Property(models.Model):
         }
 
     def _cron_extend_offer_deadline(self):
-        """Cron method: Find ALL offers across all properties where status='pending' AND deadline has passed."""
-        _logger.info("=" * 80)
-        _logger.info("CRON JOB STARTED: Extend Offer Deadlines")
-        _logger.info("=" * 80)
-
-        # Find offers that are pending and deadline has passed
-        offers = self.env['estate.property.offers'].search([('status', '=', 'pending'), ('deadline', '<', fields.Date.today())])
-
+        """Cron: batch-extend expired pending offer deadlines by 7 days."""
         today = fields.Date.today()
-        _logger.info(f"Total pending offers with expired deadlines found: {len(offers)}")
-
-        if len(offers) == 0:
-            _logger.info("No offers to extend. All pending offers have valid deadlines.")
-            _logger.info("=" * 80)
+        offers = self.env['estate.property.offers'].search([
+            ('status', '=', 'pending'),
+            ('deadline', '<', today),
+        ])
+        if not offers:
             return
-
-        # Extend deadline by 7 days for each pending expired offer
-        extended_count = 0
-        for offer in offers:
-            old_deadline = offer.deadline
-            old_validity = offer.validity
-            new_deadline = today + timedelta(days=7)
-
-            # Update deadline only
-            # The _compute_validity() method will automatically recalculate validity as:
-            # validity = (new_deadline - creation_date).days
-            offer.write({'deadline': new_deadline})
-
-            # Get the newly computed validity
-            new_validity = offer.validity
-
-            extended_count += 1
-
-            _logger.info(f"✓ Offer Extended:")
-            _logger.info(f"  - Offer ID: {offer.id}")
-            _logger.info(f"  - Offer Name: {offer.name}")
-            _logger.info(f"  - Customer: {offer.partner_id.name}")
-            _logger.info(f"  - Property: {offer.property_id.name}")
-            _logger.info(f"  - Creation Date: {offer.creation_date}")
-            _logger.info(f"  - Old Deadline: {old_deadline} (Validity: {old_validity} days)")
-            _logger.info(f"  - New Deadline: {new_deadline} (Validity: {new_validity} days)")
-            _logger.info(f"  - Calculation: ({new_deadline} - {offer.creation_date}) = {new_validity} days")
-            _logger.info("-" * 80)
-
-        _logger.info(f"CRON JOB COMPLETED: {extended_count} offer(s) extended successfully")
-        _logger.info("=" * 80)
+        new_deadline = today + timedelta(days=7)
+        offers.write({'deadline': new_deadline})
+        _logger.info("Extended %d expired pending offer(s) to %s", len(offers), new_deadline)
 
 
     # Report
@@ -200,17 +154,22 @@ class Property(models.Model):
         self.ensure_one()
         return f"Estate Property - {self.name} Report"
 
-    # Send Email
     def action_send_email(self):
-        _logger.info("Sending email for property %s", self.id)
-
-        template = self.env.ref(
-            'real_estate_ads.email_template_new_property',
-            raise_if_not_found=False
-        )
-
-        if not template:
-            _logger.error("Email template not found")
-            return
-
-        template.send_mail(self.id, force_send=True)
+        self.ensure_one()
+        template = self.env.ref('real_estate_ads.email_template_property', raise_if_not_found=False)
+        return {
+            'type': 'ir.actions.act_window',
+            'view_mode': 'form',
+            'res_model': 'mail.compose.message',
+            'views': [(False, 'form')],
+            'view_id': False,
+            'target': 'new',
+            'context': {
+                'default_model': 'estate.property',
+                'default_res_ids': self.ids,
+                'default_use_template': bool(template),
+                'default_template_id': template.id if template else False,
+                'default_composition_mode': 'comment',
+                'force_email': True,
+            },
+        }
