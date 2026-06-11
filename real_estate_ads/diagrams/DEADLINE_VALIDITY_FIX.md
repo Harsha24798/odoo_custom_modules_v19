@@ -516,3 +516,9 @@ This fix ensures that:
 
 **Result**: Offer deadline extensions now work correctly and persistently! 🎯
 
+---
+
+> **Related (June 11, 2026)**: Separate from this deadline fix, the module also
+> gained a working email template, chatter, and a styled PDF report. See
+> `EMAIL_CHATTER_REPORT_FIX.md`.
+

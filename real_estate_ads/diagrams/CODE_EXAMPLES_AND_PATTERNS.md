@@ -834,7 +834,75 @@ def test_accept_offer(self):
 
 ---
 
+## Messaging & Reporting Patterns (June 11, 2026)
+
+### Mail template `body_html` — QWeb, not Jinja
+```xml
+<record id="email_template_property" model="mail.template">
+    <field name="model_id" ref="model_estate_property"/>
+    <!-- inline_template fields → {{ }} -->
+    <field name="subject">Property Listing: {{ object.name }}</field>
+    <field name="partner_to">{{ object.buyer_id.id }}</field>
+    <!-- body_html → QWeb: t-out / t-if (NOT {{ }} / {% %}) -->
+    <field name="body_html" type="html">
+        <p>Dear <t t-out="object.buyer_id.name or 'Prospective Buyer'"/>,</p>
+        <td><t t-out="object.expected_price"/> <t t-out="object.currency_id.name"/></td>
+        <t t-if="object.description">
+            <p t-out="object.description"/>
+        </t>
+    </field>
+</record>
+```
+> `{{ }}` in `body_html` renders blank. It is only valid inside `t-attf-*`
+> attributes (e.g. `t-attf-src="/logo.png?company={{ object.company_id.id }}"`).
+
+### Open the email composer from a button
+```python
+def action_send_email(self):
+    self.ensure_one()
+    template = self.env.ref('real_estate_ads.email_template_property', raise_if_not_found=False)
+    return {
+        'type': 'ir.actions.act_window',
+        'res_model': 'mail.compose.message',
+        'view_mode': 'form',
+        'target': 'new',
+        'context': {
+            'default_model': 'estate.property',
+            'default_res_ids': self.ids,
+            'default_template_id': template.id if template else False,
+            'default_composition_mode': 'comment',
+        },
+    }
+```
+
+### Enable chatter (Odoo 19)
+```python
+class Property(models.Model):
+    _name = 'estate.property'
+    _inherit = ['mail.thread', 'mail.activity.mixin']
+    expected_price = fields.Monetary(tracking=True)  # logged in chatter
+```
+```xml
+    </sheet>
+    <chatter/>   <!-- after </sheet>, inside <form> -->
+</form>
+```
+
+### Report: dynamic class without breaking QWeb
+```xml
+<!-- ❌ dict inside t-attf #{} → "Can not compile expression" -->
+<span t-attf-class="badge #{ {'new':'text-bg-info'}.get(doc.state,'x') }">
+
+<!-- ✅ compute in t-set, interpolate the simple variable -->
+<t t-set="state_class" t-value="{'new': 'text-bg-info', 'received': 'text-bg-warning', 'accepted': 'text-bg-primary', 'sold': 'text-bg-success', 'cancel': 'text-bg-danger'}.get(doc.state, 'text-bg-secondary')"/>
+<span t-attf-class="badge #{state_class} fs-6"><span t-field="doc.state"/></span>
+```
+
+**See**: `EMAIL_CHATTER_REPORT_FIX.md`.
+
+---
+
 **End of Code Examples Guide**  
-**Version**: 1.0  
-**Date**: May 21, 2026
+**Version**: 1.1  
+**Date**: June 11, 2026
 

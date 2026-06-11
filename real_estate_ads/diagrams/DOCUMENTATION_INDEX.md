@@ -1,14 +1,31 @@
 # 📚 Documentation Index - All Files
 
-**Last Updated**: June 1, 2026  
+**Last Updated**: June 11, 2026  
 **Status**: ✅ All Updated  
-**Total Files**: 10
+**Total Files**: 13
 
 ---
 
 ## 📖 Core Documentation Files
 
-### 1. **DEADLINE_VALIDITY_FIX.md** (NEW!) 🆕
+### 0. **EMAIL_CHATTER_REPORT_FIX.md** (NEW!) 🆕
+- **Read Time**: 15 minutes
+- **Difficulty**: Intermediate
+- **Purpose**: Complete write-up of the June 11, 2026 changes — email template
+  (QWeb `t-out` vs `{{ }}`), chatter enablement (`mail.activity.mixin` +
+  `<chatter/>`), and the beautified PDF report (with the `t-attf`/`t-set` fix)
+
+**Contains**:
+- Root-cause analysis of the blank-email-body bug (engine + `noupdate`)
+- Chatter setup for Odoo 19
+- Report restyle and the QWeb compile-error fix
+- Deploy/verify steps and a troubleshooting table
+
+**Start Here If**: You want to understand the email/chatter/report changes
+
+---
+
+### 1. **DEADLINE_VALIDITY_FIX.md** 🆕
 - **Size**: ~5 KB
 - **Read Time**: 30 minutes
 - **Difficulty**: Intermediate
@@ -326,6 +343,8 @@ Navigation Entry Point
 | May 21, 2026 | Access rights fix documentation | FIX_DOCUMENTATION.md |
 | June 1, 2026 | Deadline/validity fix | DEADLINE_VALIDITY_FIX.md (NEW) |
 | June 1, 2026 | Updated all references | 6 files updated |
+| June 11, 2026 | Email template + chatter + report fix | EMAIL_CHATTER_REPORT_FIX.md (NEW) |
+| June 11, 2026 | Synced all docs | 9 files updated |
 
 ---
 
@@ -374,8 +393,8 @@ All documentation is now:
 
 ---
 
-**Version**: 2.0  
-**Date**: June 1, 2026  
+**Version**: 2.1  
+**Date**: June 11, 2026  
 **Odoo**: 19.0  
 **Module**: real_estate_ads v19.0.1.0.0  
 **Status**: ✅ Complete & Current

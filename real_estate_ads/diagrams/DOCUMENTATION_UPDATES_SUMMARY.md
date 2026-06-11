@@ -1,9 +1,40 @@
 # Documentation Updates Summary
 
-**Date**: June 1, 2026  
+**Date**: June 11, 2026  
 **Status**: ✅ All documentation updated  
 
 ---
+
+## June 11, 2026 Update — Email Template, Chatter & Report
+
+This pass documents three changes shipped on June 11, 2026. Full technical
+write-up: **EMAIL_CHATTER_REPORT_FIX.md** (new).
+
+### What Changed
+1. **Email template** — the property email sent but rendered **blank data**.
+   `body_html` is rendered by the **QWeb** engine, so `{{ }}`/`{% %}` were
+   ignored; converted to `t-out`/`t-if`. `noupdate="1"` had also blocked the
+   reload (temporarily set to `"0"`).
+2. **Chatter** — added `mail.activity.mixin` to the model and enabled the Odoo 19
+   `<chatter/>` tag on the property form.
+3. **Report** — restyled the Property PDF and fixed a QWeb compile error by
+   moving a dict literal out of `t-attf-class` into a `t-set t-value`.
+
+### Files Touched This Pass
+- 🆕 **EMAIL_CHATTER_REPORT_FIX.md** (new comprehensive fix doc)
+- ✅ CLAUDE.md (depends `base, mail`; new messaging/report architecture section)
+- ✅ FIX_DOCUMENTATION.md (new June 11 section)
+- ✅ BEST_PRACTICES_INDEX.md (added new doc reference; v1.1)
+- ✅ DOCUMENTATION_INDEX.md (added new file; counts/timeline)
+- ✅ DEVELOPER_QUICK_REFERENCE.md (Recent Fixes + email/chatter reference)
+- ✅ COMPLETE_DOCUMENTATION.md (messaging & report section)
+- ✅ QUICK_IMPLEMENTATION_GUIDE.md (new email/chatter/report test)
+- ✅ CODE_EXAMPLES_AND_PATTERNS.md (QWeb email + chatter snippets)
+- ✅ This file (DOCUMENTATION_UPDATES_SUMMARY.md)
+
+---
+
+## June 1, 2026 Update — Deadline / Validity Fix
 
 ## What Changed
 
@@ -267,7 +298,7 @@ If you find anything unclear or need additional details, refer to:
 ---
 
 **Documentation Status**: 🟢 Complete & Current  
-**Last Updated**: June 1, 2026  
+**Last Updated**: June 11, 2026  
 **Odoo Version**: 19.0  
 **Module**: real_estate_ads v19.0.1.0.0
 

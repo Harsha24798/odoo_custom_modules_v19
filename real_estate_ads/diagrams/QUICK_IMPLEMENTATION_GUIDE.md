@@ -521,6 +521,35 @@ After implementing above, test these workflows:
 
 ---
 
+## Test 6: Email Template, Chatter & Report (June 11, 2026)
+
+After upgrading (`-u real_estate_ads`):
+
+**Email**
+1. Open any property → **Send Email**.
+2. In the composer, confirm the body table is **populated** with the property
+   data (name, price, bedrooms, …) — not blank and not literal `{{ }}`.
+3. If blank: the template did not reload. Set `data/mail.template.xml` to
+   `noupdate="0"`, upgrade again, verify, then revert to `"1"`.
+
+**Chatter**
+4. On the property form, confirm the chatter shows under the sheet:
+   **Send message / Log note / Activities / Followers**.
+5. Change `expected_price` and save → the change is logged in the chatter
+   (field has `tracking=True`).
+6. Schedule an activity from the clock icon → confirms `mail.activity.mixin` works.
+
+**Report**
+7. Open a property → **Print → Property Report**.
+8. Confirm the styled layout renders and the **status badge** color matches the
+   state (new=info, received=warning, accepted=primary, sold=success, cancel=danger).
+9. No `RPC_ERROR: Can not compile expression` — that means the `t-attf`/`t-set`
+   badge fix is in place.
+
+**See**: `EMAIL_CHATTER_REPORT_FIX.md` for details.
+
+---
+
 ## Next: Deploy to Production
 
 After completing above:
@@ -554,7 +583,7 @@ You're ready when:
 
 ---
 
-**Version**: 1.0  
-**Date**: May 21, 2026  
+**Version**: 1.1  
+**Date**: June 11, 2026  
 **Odoo**: 19.0
 

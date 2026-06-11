@@ -280,5 +280,35 @@ Now: `deadline → validity` (fixed)
 
 ---
 
+## Additional Fix: Email Template, Chatter & Report (June 11, 2026)
+
+Three related changes — full write-up in `EMAIL_CHATTER_REPORT_FIX.md`.
+
+### Problem
+- The property email sent, but the body rendered **blank** where data should appear.
+- The chatter was commented out on the property form.
+- The PDF report was a plain list and later threw `RPC_ERROR: Can not compile expression`.
+
+### Solution
+1. **Email template** (`data/mail.template.xml`): `body_html` is rendered by the
+   **QWeb** engine, so `{{ }}`/`{% %}` are ignored. Converted to `t-out`/`t-if`.
+   Also `noupdate="1"` had blocked the reload — temporarily set to `"0"` so the
+   upgrade overwrites the body (revert to `"1"` after verifying).
+2. **Chatter** (`models/property.py`, `views/property_view.xml`): added
+   `mail.activity.mixin` to `_inherit` and enabled the Odoo 19 `<chatter/>` tag
+   after `</sheet>`.
+3. **Report** (`report/report_estate_property.xml`): restyled with Bootstrap and
+   fixed the QWeb error by moving a dict literal out of `t-attf-class` into a
+   `t-set t-value` (badge class), interpolating only the simple variable.
+
+### Result
+✅ Email body populates with property data
+✅ Chatter (messages / log note / activities / followers) on the form
+✅ Clean, styled PDF report with a color-coded status badge
+
+**See**: `EMAIL_CHATTER_REPORT_FIX.md` for detailed documentation
+
+---
+
 ✅ **Module is now ready for deployment!**
 

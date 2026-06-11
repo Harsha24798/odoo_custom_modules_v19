@@ -639,10 +639,41 @@ offer.write({'deadline': new_deadline})
 # validity = (new_deadline - creation_date).days  # Auto-calculated!
 ```
 
+### Email Template, Chatter & Report (June 11, 2026)
+
+**Email template** — `body_html` is rendered by **QWeb**, not Jinja:
+```xml
+<!-- body_html: use t-out / t-if, NOT {{ }} / {% %} -->
+<td><t t-out="object.name"/></td>
+<t t-if="object.description"> ... </t>
+<!-- subject / email_from / partner_to: {{ }} is correct (inline_template) -->
+```
+`{{ }}` only works inside `t-attf-*` attributes in QWeb. The template record is in
+a `noupdate` block — flip to `noupdate="0"` to let an upgrade overwrite the body,
+then back to `"1"`.
+
+**Chatter** — model + view:
+```python
+_inherit = ['mail.thread', 'mail.activity.mixin']
+```
+```xml
+    </sheet>
+    <chatter/>          <!-- Odoo 19 one-liner, after </sheet> -->
+</form>
+```
+
+**Report** — keep `t-attf` / `#{}` simple; move dict/list expressions to `t-set`:
+```xml
+<t t-set="state_class" t-value="{'new': 'text-bg-info', ...}.get(doc.state, 'text-bg-secondary')"/>
+<span t-attf-class="badge #{state_class} fs-6"><span t-field="doc.state"/></span>
+```
+
+**More Info**: See `EMAIL_CHATTER_REPORT_FIX.md`
+
 ---
 
-**Last Updated**: June 1, 2026  
+**Last Updated**: June 11, 2026  
 **Odoo Version**: 19.0  
 **Module**: real_estate_ads v19.0.1.0.0  
-**Document Version**: 2.0
+**Document Version**: 2.1
 

@@ -1122,7 +1122,12 @@ tags = fields.Many2many(default=lambda self: [])
 
 **Production-Ready Status**: When you can check all items in the Code Review Checklist, your module is ready for production deployment.
 
-**Version**: 1.0  
-**Last Updated**: May 21, 2026  
+> **Note (June 11, 2026)**: For the messaging/reporting conventions now used by
+> this module (QWeb `body_html` email templates, `mail.activity.mixin` + Odoo 19
+> `<chatter/>`, and safe `t-attf`/`t-set` usage in reports), see
+> `EMAIL_CHATTER_REPORT_FIX.md` and `CODE_EXAMPLES_AND_PATTERNS.md`.
+
+**Version**: 1.1  
+**Last Updated**: June 11, 2026  
 **Odoo Version**: 19.0
 

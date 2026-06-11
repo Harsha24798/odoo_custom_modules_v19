@@ -300,10 +300,25 @@ real_estate_ads/
 
 ---
 
+## Messaging & Report Access (June 11, 2026)
+
+- The **Send Email** button (`action_send_email`) is gated to
+  `group_property_sales` (and above, via the implication chain) in the form view.
+- The **Property Report** action (`report/property_report.xml`) restricts its
+  print binding to managers via
+  `group_ids = [(4, ref('real_estate_ads.group_property_manager'))]`.
+- The email template's `email_from` uses the current user
+  (`{{ (user.email_formatted or user.email) }}`); recipients come from
+  `partner_to = {{ object.buyer_id.id }}`.
+
+See `EMAIL_CHATTER_REPORT_FIX.md` for the implementation.
+
+---
+
 ## Version Information
 - **Odoo Version**: 19.0
 - **Module Version**: 19.0.1.0.0
-- **Last Updated**: 2024
+- **Last Updated**: June 11, 2026
 - **Security Model**: Implemented via Groups, ACLs, and Record Rules
 
 ---

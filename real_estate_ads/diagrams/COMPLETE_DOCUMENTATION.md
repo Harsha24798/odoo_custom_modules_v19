@@ -1368,6 +1368,39 @@ Performance Impact:
 
 ---
 
+## Messaging, Email Template & PDF Report (June 11, 2026)
+
+### Mixins & Chatter
+`estate.property` inherits `['mail.thread', 'mail.activity.mixin']`. The form
+view enables the chatter with a single `<chatter/>` tag after `</sheet>` (Odoo
+18/19 syntax). `expected_price` uses `tracking=True`, so value changes are logged
+to the chatter automatically.
+
+### Email Template (`data/mail.template.xml`)
+`mail.template` fields are rendered by **two engines**:
+
+| Field | Engine | Syntax |
+|-------|--------|--------|
+| `subject`, `email_from`, `partner_to`, `email_to` | `inline_template` | `{{ expr }}` |
+| `body_html` | `qweb` | `t-out`, `t-if`, `t-foreach` |
+
+`body_html` therefore must use `t-out`/`t-if` — `{{ }}`/`{% %}` render blank.
+`{{ }}` is valid only inside `t-attf-*` attribute strings. The record is in a
+`noupdate` block: `"1"` for production, `"0"` temporarily to let an upgrade
+overwrite the body. `action_send_email()` opens `mail.compose.message` in
+`comment` mode with `default_template_id` + `default_res_ids`.
+
+### PDF Report (`report/report_estate_property.xml`)
+`report_estate_property` → `report_estate_property_document` (via
+`web.external_layout`). Styled with Bootstrap: title band, pricing cards,
+details table, conditional garden row, status badge. Keep `t-attf` / `#{}`
+interpolations to a single variable; expressions with `{}`/`[]` (the badge-class
+dict `.get()`) live in a `t-set t-value` to avoid a QWeb compile error.
+
+**See**: `EMAIL_CHATTER_REPORT_FIX.md` for the full write-up.
+
+---
+
 ## Conclusion
 
 The **Real Estate Ads** module is a complete, production-ready Odoo application for managing real estate properties and offers. It demonstrates:
@@ -1383,8 +1416,8 @@ This documentation provides everything needed to understand, maintain, and exten
 
 ---
 
-**Document Version**: 1.0  
-**Last Updated**: May 21, 2026  
+**Document Version**: 1.1  
+**Last Updated**: June 11, 2026  
 **Module Version**: 19.0.1.0.0  
 **Odoo Version**: 19.0
 

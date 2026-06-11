@@ -572,8 +572,12 @@ Required work:
 
 ---
 
-**Version**: 1.0  
-**Last Updated**: May 21, 2026  
+> **Update (June 11, 2026)**: Email notifications, chatter, and a PDF report are
+> now implemented. See `EMAIL_CHATTER_REPORT_FIX.md` for the email-template
+> (QWeb), chatter (`mail.activity.mixin` + `<chatter/>`), and report changes.
+
+**Version**: 1.1  
+**Last Updated**: June 11, 2026  
 **Module**: real_estate_ads  
 **Target**: Production-ready Odoo 19 module
 

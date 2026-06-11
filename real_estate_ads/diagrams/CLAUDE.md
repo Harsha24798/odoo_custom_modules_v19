@@ -29,7 +29,7 @@ Add `--load-language=en_US` and ensure `demo = True` in `odoo.conf`, or pass `--
 
 **Technical name:** `real_estate_ads`  
 **Odoo version:** 19.0  
-**Depends:** `base` only
+**Depends:** `base`, `mail` (`mail` is required for the chatter, the `mail.template`, and tracked fields)
 
 ### Models and relationships
 
@@ -81,6 +81,33 @@ The form view uses a computed boolean `is_manager` (with `@api.depends_context('
 ```
 
 Buttons in the form header (`action_sold`, `action_cancel`) use `groups="real_estate_ads.group_property_sales"` — but the Python methods currently enforce **manager-only** access. This mismatch means Sales users see the buttons but get `AccessError`. Fix by aligning the Python check to match the button visibility.
+
+### Messaging: chatter, email template & report
+
+`estate.property` inherits `['mail.thread', 'mail.activity.mixin']`. The form
+view enables the chatter with a single `<chatter/>` tag placed **after
+`</sheet>`** (Odoo 18/19 syntax — no `oe_chatter` div, no separate
+`message_ids`/`activity_ids` fields). `expected_price` has `tracking=True`, so
+its changes are logged in the chatter.
+
+**Email template** (`data/mail.template.xml`): the `body_html` field is rendered
+by the **QWeb** engine, so it must use `t-out` / `t-if` / `t-foreach` — **not**
+`{{ }}` or `{% %}` (those only work in `inline_template` fields like `subject`,
+`email_from`, `partner_to`). `{{ }}` is valid inside `t-attf-*` attribute
+strings only. The template record sits in a `noupdate` data block: keep it at
+`"1"` for production (preserves user edits) and flip to `"0"` only when you need
+an upgrade to overwrite the body during development.
+
+`action_send_email()` on the property opens `mail.compose.message` in `comment`
+mode with `default_template_id` and `default_res_ids`.
+
+**PDF report** (`report/report_estate_property.xml`): `report_estate_property`
+calls `report_estate_property_document`. Keep `t-attf-*` / `#{}` interpolations
+to a single variable — put any expression containing `{}`/`[]` (e.g. a dict
+`.get()` for the status badge class) into a `t-set t-value` first, or QWeb
+fails to compile.
+
+See `EMAIL_CHATTER_REPORT_FIX.md` for the full write-up (June 11, 2026).
 
 ### Offer deadline / validity round-trip
 
