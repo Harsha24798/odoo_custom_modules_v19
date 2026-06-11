@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <odoo>
-    <data noupdate="1">
+    <data noupdate="0">
 
         <record id="email_template_property" model="mail.template">
             <field name="name">Property: Send Information</field>
@@ -13,66 +13,66 @@
                     <h2 style="color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">
                         Property Listing Information
                     </h2>
-                    <p>Dear {{ object.buyer_id.name if object.buyer_id else 'Prospective Buyer' }},</p>
+                    <p>Dear <t t-out="object.buyer_id.name or 'Prospective Buyer'"/>,</p>
                     <p>We are pleased to share the details of the following property:</p>
 
                     <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
                         <tr style="background-color: #f2f2f2;">
                             <td style="padding: 10px; font-weight: bold; width: 40%; border: 1px solid #ddd;">Property Name</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.name }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.name"/></td>
                         </tr>
                         <tr>
                             <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Postcode</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.postcode or 'N/A' }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.postcode or 'N/A'"/></td>
                         </tr>
                         <tr style="background-color: #f2f2f2;">
                             <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Expected Price</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.expected_price }} {{ object.currency_id.name }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.expected_price"/> <t t-out="object.currency_id.name"/></td>
                         </tr>
                         <tr>
                             <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Bedrooms</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.bedrooms }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.bedrooms"/></td>
                         </tr>
                         <tr style="background-color: #f2f2f2;">
                             <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Living Area</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.living_area }} sqm</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.living_area"/> sqm</td>
                         </tr>
                         <tr>
                             <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Total Area</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.total_area }} sqm</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.total_area"/> sqm</td>
                         </tr>
                         <tr style="background-color: #f2f2f2;">
                             <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Available From</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.date_availability or 'Immediately' }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.date_availability or 'Immediately'"/></td>
                         </tr>
                         <tr>
                             <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Property Type</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{{ object.type_id.name if object.type_id else 'N/A' }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="object.type_id.name or 'N/A'"/></td>
                         </tr>
                         <tr style="background-color: #f2f2f2;">
                             <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Garden</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{{ 'Yes' if object.garden else 'No' }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="'Yes' if object.garden else 'No'"/></td>
                         </tr>
                         <tr>
                             <td style="padding: 10px; font-weight: bold; border: 1px solid #ddd;">Garage</td>
-                            <td style="padding: 10px; border: 1px solid #ddd;">{{ 'Yes' if object.garage else 'No' }}</td>
+                            <td style="padding: 10px; border: 1px solid #ddd;"><t t-out="'Yes' if object.garage else 'No'"/></td>
                         </tr>
                     </table>
 
-                    {% if object.description %}
-                    <h3 style="color: #2c3e50;">Description</h3>
-                    <p style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #3498db;">
-                        {{ object.description }}
-                    </p>
-                    {% endif %}
+                    <t t-if="object.description">
+                        <h3 style="color: #2c3e50;">Description</h3>
+                        <p style="background-color: #f9f9f9; padding: 15px; border-left: 4px solid #3498db;">
+                            <t t-out="object.description"/>
+                        </p>
+                    </t>
 
                     <p style="margin-top: 30px;">
                         For further information or to schedule a viewing, please don't hesitate to contact us.
                     </p>
                     <p>
                         Best Regards,<br/>
-                        <strong>{{ user.name }}</strong><br/>
-                        {{ user.email or '' }}
+                        <strong t-out="user.name"/><br/>
+                        <t t-out="user.email or ''"/>
                     </p>
                 </div>
             </field>

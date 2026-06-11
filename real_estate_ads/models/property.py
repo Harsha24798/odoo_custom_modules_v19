@@ -159,17 +159,13 @@ class Property(models.Model):
         template = self.env.ref('real_estate_ads.email_template_property', raise_if_not_found=False)
         return {
             'type': 'ir.actions.act_window',
-            'view_mode': 'form',
             'res_model': 'mail.compose.message',
-            'views': [(False, 'form')],
-            'view_id': False,
+            'view_mode': 'form',
             'target': 'new',
             'context': {
                 'default_model': 'estate.property',
                 'default_res_ids': self.ids,
-                'default_use_template': bool(template),
                 'default_template_id': template.id if template else False,
                 'default_composition_mode': 'comment',
-                'force_email': True,
             },
         }
